@@ -19,7 +19,7 @@ const Signin = () => {
     setError("");
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/users/login/api/", formData, {
+      const response = await axios.post("http://127.0.0.1:8000/api/users/login/", formData, {
         headers: { "Content-Type": "application/json" },
       });
 
