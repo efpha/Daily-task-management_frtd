@@ -8,7 +8,7 @@ const Signin = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext); // 👈 from context
+  const { login } = useContext(AuthContext);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,10 +23,10 @@ const Signin = () => {
         headers: { "Content-Type": "application/json" },
       });
 
-      const { access, refresh } = response.data;
+      const { access_token, refresh_token } = response.data;
 
       // call context login
-      login(access, refresh);
+      login(access_token, refresh_token);
 
       // redirect
       navigate("/dashboard");
