@@ -14,9 +14,9 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Login method
-  const login = (access, refresh) => {
-    localStorage.setItem("accessToken", access);
-    localStorage.setItem("refreshToken", refresh);
+  const login = (access_token, refresh_token) => {
+    localStorage.setItem("accessToken", access_token);
+    localStorage.setItem("refreshToken", refresh_token);
     setIsAuthenticated(true);
   };
 
