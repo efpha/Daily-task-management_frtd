@@ -49,7 +49,7 @@ const Register = () => {
       });
 
       // Redirect to login page
-      navigate("/login");
+      navigate("/home/login");
     } catch (err) {
       console.error("Registration failed:", err);
       setError("Registration failed. Please try again.");
