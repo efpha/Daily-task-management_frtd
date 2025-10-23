@@ -62,7 +62,7 @@ const Signin = () => {
 
           <div className="links_container">
             <Link to="#">Forgot password</Link>
-            <Link to="/register">Create Account</Link>
+            <Link to="/home/register">Create Account</Link>
           </div>
 
           <button className="continue_btn" type="submit">Continue</button>
