@@ -50,4 +50,75 @@ input{
     cursor: pointer;
     border: none;
 }
+.error_message {
+  color: #ff0000;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  text-align: center;
+  width: 100%;
+  margin-bottom: 1rem;
+}
 
+@media (max-width: 900px) {
+  .login_container {
+    width: 90%;
+    height: auto;
+    margin: 5vh auto;
+  }
+
+  .card-container {
+    width: 90%;
+    margin: 3rem auto;
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+
+  .form_section {
+    height: auto;
+    gap: 0.8rem;
+  }
+
+  input {
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 0.9rem;
+  }
+
+  .links_container {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .continue_btn {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.9rem;
+  }
+
+  .error_message {
+    font-size: 0.9rem;
+    color: red;
+  }
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 1.1rem;
+  }
+
+  .card-container {
+    margin-top: 2rem;
+  }
+
+  input, .continue_btn {
+    border-radius: 15px;
+  }
+
+  .links_container {
+    font-size: 0.9rem;
+  }
+}
