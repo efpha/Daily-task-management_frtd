@@ -18,11 +18,10 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Signin />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/home/login" element={<Signin />} />
+          <Route path="/home/register" element={<Register />} />
           
-          {/* 👇 Secure dashboard using AuthContext */}
           <Route
             path="/dashboard"
             element={
