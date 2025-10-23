@@ -17,16 +17,16 @@ import "./dashboard.css";
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
-  const [showPopup, setShowPopup] = useState(false); // create task popup
-  const [showTaskPopup, setShowTaskPopup] = useState(false); // view/edit popup
-  const [selectedTask, setSelectedTask] = useState(null); // task clicked
+  const [showPopup, setShowPopup] = useState(false); 
+  const [showTaskPopup, setShowTaskPopup] = useState(false); 
+  const [selectedTask, setSelectedTask] = useState(null); 
   const [newTask, setNewTask] = useState({ title: "", description: "" });
   const [loading, setLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
 
   const token = localStorage.getItem("accessToken");
-  const API_URL = "http://192.168.100.84:8000/api/tasks/";
+  const API_URL = "http://127.0.0.1:8000/api/tasks/";
 
   // Fetch all tasks
   const fetchTasks = async () => {
@@ -166,7 +166,6 @@ const Dashboard = () => {
         </span>
       )}
 
-      {/* Main Content */}
       <div className="content_center">
         <div className="content_center_container">
           <div className="tasks_heading">
