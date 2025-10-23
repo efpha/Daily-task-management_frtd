@@ -36,7 +36,7 @@ const Register = () => {
 
     try {
       // Send registration data to Django backend
-      await axios.post("http://127.0.0.1:8000/api/users/register/", 
+      await axios.post("http://192.168.100.84:8000/api/users/register/", 
         {
             name: formData.name,
             email: formData.email,
@@ -62,10 +62,6 @@ const Register = () => {
         <div className="create_acc">
           <h1>Create Account</h1>
         </div>
-
-        {/* Show error message if any */}
-        {error && <p className="error-msg">{error}</p>}
-
         <form className="form_section" onSubmit={handleSubmit}>
           <input
             type="text"
@@ -105,6 +101,7 @@ const Register = () => {
             </Link>
           </div>
           <button className="continue_btn" type="submit">Continue</button>
+          {error && <p className="error_message">{error}</p>}
         </form>
       </div>
     </div>
