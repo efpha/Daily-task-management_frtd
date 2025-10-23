@@ -36,7 +36,7 @@ const Register = () => {
 
     try {
       // Send registration data to Django backend
-      await axios.post("http://192.168.100.84:8000/api/users/register/", 
+      await axios.post("http://127.0.0.1:8000/api/users/register/", 
         {
             name: formData.name,
             email: formData.email,
