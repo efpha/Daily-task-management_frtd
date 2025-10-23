@@ -1,11 +1,9 @@
-/* Container */
 .popup-container {
   display: flex;
   justify-content: center;
   margin-top: 50px;
 }
 
-/* Add Task Button */
 .add-task-btn {
   background-color: #4a90e2;
   color: white;
@@ -21,7 +19,6 @@
   background-color: #357ab7;
 }
 
-/* Overlay background when popup is open */
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -35,7 +32,6 @@
   z-index: 10;
 }
 
-/* Popup card styling */
 .popup-card {
   background: #fff;
   padding: 25px;
@@ -63,7 +59,6 @@
   resize: none;
 }
 
-/* Buttons inside popup */
 .popup-buttons {
   display: flex;
   justify-content: space-between;
@@ -98,7 +93,6 @@
   background-color: #333;
 }
 
-/* Smooth fade animation */
 @keyframes fadeIn {
   from {
     opacity: 0;

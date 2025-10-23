@@ -45,3 +45,57 @@
     color: #fff;
     border-radius: 10px;
 }
+
+@media (max-width: 900px) {
+  .home_container {
+    width: 95%;
+    height: auto;
+    margin: 5vh auto;
+  }
+
+  .login_section {
+    text-align: center;
+  }
+
+  .login_link {
+    font-size: 1.4rem;
+    padding: 0.5rem 1.4rem;
+  }
+
+  .landing_center {
+    width: 90%;
+    margin: 5vh auto;
+    padding: 1.5rem;
+  }
+
+  .landing_center h1 {
+    font-size: 2.2rem;
+  }
+
+  .landing_center p {
+    font-size: 1.2rem;
+    margin: 0.3rem;
+  }
+
+  .landing_center a {
+    padding: 0.8rem 1.6rem;
+    top: 1.5rem;
+    font-size: 1.2rem;
+  }
+}
+
+/* Extra small devices (phones below 500px) */
+@media (max-width: 500px) {
+  .landing_center h1 {
+    font-size: 1.8rem;
+  }
+
+  .landing_center p {
+    font-size: 1rem;
+  }
+
+  .landing_center a {
+    padding: 0.7rem 1.4rem;
+    font-size: 1rem;
+  }
+}
