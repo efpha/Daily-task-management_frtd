@@ -49,6 +49,8 @@ const Register = () => {
       });
 
       // Redirect to login page
+      console.log("Data sent successfully to backend");
+      
       navigate("/home/login");
     } catch (err) {
       console.error("Registration failed:", err);
@@ -96,7 +98,7 @@ const Register = () => {
             required
           />
           <div>
-            <Link className="exist_link" to="/login">
+            <Link className="exist_link" to="/home/login">
               Have an existing account?
             </Link>
           </div>
