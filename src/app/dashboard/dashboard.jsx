@@ -118,7 +118,7 @@ const Dashboard = () => {
     e.preventDefault();
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
-    window.location.href = "/";
+    window.location.href = "/home/login";
   };
 
   //side_bar close
