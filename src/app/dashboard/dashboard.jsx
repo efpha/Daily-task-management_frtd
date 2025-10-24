@@ -12,7 +12,7 @@ import {
   NotebookTabs,
   CheckCircle,
 } from "lucide-react";
-import axios from "axios";
+import axios from "../../axiosConfig.js";
 import "./dashboard.css";
 
 const Dashboard = () => {
@@ -206,14 +206,6 @@ const Dashboard = () => {
                                 : task.title}
                             </span>
                           </div>
-                          <span className="task_status" title="Task status">
-                            pending
-                            {/* {{tasks.completed ? (
-                              <CheckCircle size={16} color="green" />
-                            ) : (
-                              <span className="pending">Pending</span>
-                            )}} */}
-                          </span>
                         </div>
                         
                         <div className="manipulators row_2">
