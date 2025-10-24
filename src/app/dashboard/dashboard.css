@@ -186,8 +186,8 @@ body{
 }
 /* .title, .task_header button, . */
 .tasks_heading{
-  width: 100%;
-  /* background-color: #9c0a0a; */
+  width: 80%;
+  background-color: #9c0a0a;
   padding: .1rem 1rem;
   position: sticky; /* keeps it visible while scrolling */
   top: 0;
