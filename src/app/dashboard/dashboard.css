@@ -264,7 +264,8 @@ body{
 }
 
 .task_list{
-  width: 100%;
+  width: 80%;
+  background-color: greenyellow;
   margin: 5rem 0;
   height: auto;
   padding: 1rem;
