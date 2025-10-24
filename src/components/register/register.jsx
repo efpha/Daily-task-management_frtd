@@ -57,7 +57,7 @@ const Register = () => {
   };
 
   return (
-    <div className="container">
+    <div className="register_container">
       <div className="card-container">
         <div className="create_acc">
           <h1>Create Account</h1>

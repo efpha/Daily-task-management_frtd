@@ -37,7 +37,7 @@ const Signin = () => {
   };
 
   return (
-    <div className="container">
+    <div className="login_container">
       <div className="card-container">
         <h1>Provide your details to proceed</h1>
         <form className="form_section" onSubmit={handleSubmit}>
