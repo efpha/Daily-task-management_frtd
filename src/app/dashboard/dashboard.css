@@ -186,15 +186,17 @@ body{
 }
 /* .title, .task_header button, . */
 .tasks_heading{
-  width: 80%;
-  background-color: #9c0a0a;
+  width: 90%;
+  /* background-color: #9c0a0a; */
   padding: .1rem 1rem;
+  margin: auto;
   position: sticky; /* keeps it visible while scrolling */
   top: 0;
   z-index: 10;
   overflow: hidden;
 }
 .title_and_btn{
+  /* background-color: #9c0a0a; */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -265,8 +267,8 @@ body{
 
 .task_list{
   width: 80%;
-  background-color: greenyellow;
-  margin: 5rem 0;
+  /* background-color: greenyellow; */
+  margin: 5rem auto;
   height: auto;
   padding: 1rem;
 }
