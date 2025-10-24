@@ -36,7 +36,7 @@ const Register = () => {
 
     try {
       // Send registration data to Django backend
-      await axios.post("http://127.0.0.1:8000/api/users/register/", 
+      await axios.post("https://daily-task-management-backend.onrender.com/api/users/register/", 
         {
             name: formData.name,
             email: formData.email,
@@ -48,8 +48,6 @@ const Register = () => {
         }
       });
 
-      // Redirect to login page
-      console.log("Data sent successfully to backend");
       
       navigate("/home/login");
     } catch (err) {
