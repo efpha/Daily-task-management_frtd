@@ -26,7 +26,8 @@ const Dashboard = () => {
 
 
   const token = localStorage.getItem("accessToken");
-  const API_URL = "https://daily-task-management-backend.onrender.com/api/tasks/";
+  // const API_URL = "https://daily-task-management-backend.onrender.com/api/tasks/";
+  const API_URL = "http://127.0.0.1:8000/api/tasks/"
 
   // Fetch all tasks
   const fetchTasks = async () => {

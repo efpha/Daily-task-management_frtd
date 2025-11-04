@@ -34,9 +34,11 @@ const Register = () => {
       return;
     }
 
+    // http://127.0.0.1:8000/api/users/register/
+    // "https://daily-task-management-backend.onrender.com/api/users/register/"
     try {
       // Send registration data to Django backend
-      await axios.post("https://daily-task-management-backend.onrender.com/api/users/register/", 
+      await axios.post("http://127.0.0.1:8000/api/users/register/", 
         {
             name: formData.name,
             email: formData.email,
