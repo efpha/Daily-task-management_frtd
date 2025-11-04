@@ -15,6 +15,7 @@ const Home = () => {
         <p>Minimize task wastage.</p>
         <a className="get_started_link" href="/home/register">Get started</a>
       </div>
+      
     </div>
   );
 };
