@@ -5,8 +5,6 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const  base_live_URL=import.meta.VITE_BASE_LIVE_URL
-  const  base_local_URL= import.meta.VITE_BASE_LOCAL_URL
 
   // On app load, check if tokens exist in localStorage
   useEffect(() => {
@@ -19,10 +17,9 @@ export const AuthProvider = ({ children }) => {
 
 
   const verifyToken = async (accessToken) => {
-    // https://daily-task-management-backend.onrender.com/api
     try {
       // Try to decode or ping a protected route
-      await api.get(`$tasks/all`, {
+      await api.get(`tasks/all`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
     } catch (error) {

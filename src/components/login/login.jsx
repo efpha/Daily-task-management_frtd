@@ -12,9 +12,6 @@ const Signin = () => {
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
 
-  const  base_live_URL=import.meta.VITE_BASE_LIVE_URL
-  const  base_local_URL= import.meta.VITE_BASE_LOCAL_URL
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };

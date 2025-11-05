@@ -28,9 +28,6 @@ const Dashboard = () => {
   
   const token = localStorage.getItem("accessToken");
 
-  const  base_live_URL=import.meta.VITE_BASE_LIVE_URL
-  const  base_local_URL= import.meta.VITE_BASE_LOCAL_URL
-
   // Fetch all tasks
   const fetchTasks = async () => {
     try {
