@@ -12,6 +12,8 @@ import {
   NotebookTabs,
   CheckCircle,
 } from "lucide-react";
+import { Button } from "../../components/ui/button";
+import { Spinner } from "../../components/ui/spinner";
 import axios from "../../axiosConfig.js";
 import "./dashboard.css";
 
@@ -345,7 +347,20 @@ const Dashboard = () => {
                     <label htmlFor="pending">Mark pending</label>
                   </div>
 
-                  <button type="submit" className="save_btn"> Save Changes</button>
+                  {/* <button type="submit" > </button> */}
+                  <Button 
+                    className="save_btn"
+                    disabled={loading}
+                    type="submit" 
+                  >
+                    {loading ? (
+                    <>
+                      <Spinner className="text-white" /> Saving ...
+                    </>
+                    ) : (
+                      "Save Changes"
+                    )}
+                  </Button>
                 </div>
               </form>
               </section>
