@@ -1,10 +1,8 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 
-// Create context
 export const AuthContext = createContext();
 
-// Provider component
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -19,9 +17,10 @@ export const AuthProvider = ({ children }) => {
 
 
   const verifyToken = async (accessToken) => {
+    // https://daily-task-management-backend.onrender.com/api
     try {
       // Try to decode or ping a protected route
-      await axios.get("https://daily-task-management-backend.onrender.com/api/tasks/all", {
+      await axios.get("http://127.0.0.1:8000/api/users/tasks/all", {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
     } catch (error) {
@@ -36,7 +35,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const refresh = localStorage.getItem("refreshToken");
       const response = await axios.post(
-        "https://daily-task-management-backend.onrender.com/api/users/token/refresh/",
+        "http://127.0.0.1:8000/api/users/token/refresh/",
         { refresh }
       );
       const newAccess = response.data.access;
@@ -48,14 +47,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Login method
   const login = (access_token, refresh_token) => {
     localStorage.setItem("accessToken", access_token);
     localStorage.setItem("refreshToken", refresh_token);
     setIsAuthenticated(true);
   };
 
-  // Logout method
   const logout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
