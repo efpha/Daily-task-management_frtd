@@ -2,9 +2,6 @@ import axios from "axios";
 const  base_live_URL=import.meta.env.VITE_BASE_LIVE_URL
 const  base_local_URL= import.meta.env.VITE_BASE_LOCAL_URL
 
-console.log("Backend Base URL:", import.meta.env.VITE_BASE_LIVE_URL);
-
-
 const api = axios.create({
   baseURL: base_live_URL,
   headers: {
