@@ -32,7 +32,7 @@ const Dashboard = () => {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const response = await api.get('all', {
+      const response = await api.get('tasks/all', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTasks(response.data);
