@@ -11,6 +11,9 @@ const Signin = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
+  
+  const  base_live_URL=import.meta.VITE_BASE_LIVE_URL
+  const  base_local_URL= import.meta.VITE_BASE_LOCAL_URL
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,7 +25,7 @@ const Signin = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post("/users/login/", formData);
+      const response = await axios.post(`${base_live_URL}users/login/`, formData);
 
       const { access_token, refresh_token } = response.data;
       login(access_token, refresh_token);

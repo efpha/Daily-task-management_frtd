@@ -2,6 +2,8 @@ import './register.css';
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "../../axiosConfig.js";
+const  base_live_URL=import.meta.VITE_BASE_LIVE_URL
+const  base_local_URL= import.meta.VITE_BASE_LOCAL_URL
 
 const Register = () => {
   const [formData, setFormData] = useState(
@@ -38,7 +40,7 @@ const Register = () => {
     // "https://daily-task-management-backend.onrender.com/api/users/register/"
     try {
       // Send registration data to Django backend
-      await axios.post("http://127.0.0.1:8000/api/users/register/", 
+      await axios.post(`${base_live_URL}users/register/`, 
         {
             name: formData.name,
             email: formData.email,

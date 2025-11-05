@@ -5,6 +5,8 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const  base_live_URL=import.meta.VITE_BASE_LIVE_URL
+  const  base_local_URL= import.meta.VITE_BASE_LOCAL_URL
 
   // On app load, check if tokens exist in localStorage
   useEffect(() => {
@@ -20,7 +22,7 @@ export const AuthProvider = ({ children }) => {
     // https://daily-task-management-backend.onrender.com/api
     try {
       // Try to decode or ping a protected route
-      await axios.get("http://127.0.0.1:8000/api/users/tasks/all", {
+      await axios.get(`${base_live_URL}tasks/all`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
     } catch (error) {
@@ -35,7 +37,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const refresh = localStorage.getItem("refreshToken");
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/users/token/refresh/",
+        `${base_live_URL}/users/token/refresh/`,
         { refresh }
       );
       const newAccess = response.data.access;

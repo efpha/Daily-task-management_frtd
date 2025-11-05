@@ -25,17 +25,17 @@ const Dashboard = () => {
   const [newTask, setNewTask] = useState({ title: "", description: "" });
   const [loading, setLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-
-
+  
   const token = localStorage.getItem("accessToken");
-  // const API_URL = "https://daily-task-management-backend.onrender.com/api/tasks/";
-  const API_URL = "http://127.0.0.1:8000/api/tasks/"
+
+  const  base_live_URL=import.meta.VITE_BASE_LIVE_URL
+  const  base_local_URL= import.meta.VITE_BASE_LOCAL_URL
 
   // Fetch all tasks
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}all`, {
+      const response = await axios.get(`${base_live_URL}all`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTasks(response.data);
@@ -57,7 +57,7 @@ const Dashboard = () => {
 
     try {
       await axios.post(
-        `${API_URL}create/`,
+        `${base_live_URL}tasks/create/`,
         { title: newTask.title, description: newTask.description },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -72,7 +72,7 @@ const Dashboard = () => {
   // Delete a task
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${API_URL}delete/${id}/`, {
+      await axios.delete(`${base_live_URL}tasks/delete/${id}/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchTasks();
@@ -87,7 +87,7 @@ const Dashboard = () => {
     e.preventDefault();
     try {
       await axios.put(
-        `${API_URL}update/${selectedTask.id}/`,
+        `${base_live_URL}tasks/update/${selectedTask.id}/`,
         {
           title: selectedTask.title,
           description: selectedTask.description,
