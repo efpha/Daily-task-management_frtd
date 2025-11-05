@@ -10,7 +10,7 @@ import { AuthProvider, AuthContext } from "./authcontext.jsx";
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useContext(AuthContext);
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  return isAuthenticated ? children : <Navigate to="/dashboard" />;
 };
 
 function App() {
