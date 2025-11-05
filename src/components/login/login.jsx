@@ -25,7 +25,7 @@ const Signin = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`users/login/`, formData);
+      const response = await axios.post('users/login/', formData);
 
       const { access_token, refresh_token } = response.data;
       login(access_token, refresh_token);
