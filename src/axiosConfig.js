@@ -14,7 +14,7 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config) => {
    
-    const publicEndpoints = ['/users/login/', '/users/register/'];
+    const publicEndpoints = ['users/login/', 'users/register/'];
     
     // if the current req is to a public endpoint
     const isPublicEndpoint = publicEndpoints.some(endpoint => 
