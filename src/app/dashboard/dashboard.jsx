@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Spinner } from "../../components/ui/spinner";
-import axios from "../../axiosConfig.js";
+import api from "../../axiosConfig.js";
 import "./dashboard.css";
 
 const Dashboard = () => {
@@ -35,7 +35,7 @@ const Dashboard = () => {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${base_live_URL}all`, {
+      const response = await api.get('all', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTasks(response.data);
@@ -56,8 +56,8 @@ const Dashboard = () => {
     if (!newTask.title.trim()) return;
 
     try {
-      await axios.post(
-        `${base_live_URL}tasks/create/`,
+      await api.post(
+        `tasks/create/`,
         { title: newTask.title, description: newTask.description },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -72,7 +72,7 @@ const Dashboard = () => {
   // Delete a task
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${base_live_URL}tasks/delete/${id}/`, {
+      await api.delete(`tasks/delete/${id}/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchTasks();
@@ -86,8 +86,7 @@ const Dashboard = () => {
   const handleUpdateTask = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(
-        `${base_live_URL}tasks/update/${selectedTask.id}/`,
+      await api.put(`tasks/update/${selectedTask.id}/`,
         {
           title: selectedTask.title,
           description: selectedTask.description,

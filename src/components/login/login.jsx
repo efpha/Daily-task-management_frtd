@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "../../axiosConfig.js";
+import api from "../../axiosConfig.js";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 import { AuthContext } from "../../authcontext.jsx";
@@ -25,7 +25,7 @@ const Signin = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('users/login/', formData);
+      const response = await api.post('users/login/', formData);
 
       const { access_token, refresh_token } = response.data;
       login(access_token, refresh_token);

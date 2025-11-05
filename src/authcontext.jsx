@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import axios from "axios";
+import api from "axios";
 
 export const AuthContext = createContext();
 
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
     // https://daily-task-management-backend.onrender.com/api
     try {
       // Try to decode or ping a protected route
-      await axios.get(`${base_live_URL}tasks/all`, {
+      await api.get(`$tasks/all`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
     } catch (error) {
@@ -36,8 +36,7 @@ export const AuthProvider = ({ children }) => {
   const refreshAccessToken = async () => {
     try {
       const refresh = localStorage.getItem("refreshToken");
-      const response = await axios.post(
-        `${base_live_URL}/users/token/refresh/`,
+      const response = await api.post(`users/token/refresh/`,
         { refresh }
       );
       const newAccess = response.data.access;
