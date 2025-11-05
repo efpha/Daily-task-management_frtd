@@ -1,7 +1,9 @@
 import axios from "axios";
+const  base_live_URL=import.meta.VITE_BASE_LIVE_URL
+const  base_local_URL= import.meta.VITE_BASE_LOCAL_URL
 
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/api/",
+  baseURL: base_live_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -43,7 +45,7 @@ api.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem("refreshToken");
         const response = await axios.post(
-          "http://127.0.0.1:8000/api/users/token/refresh/",
+          `${base_live_URL}users/token/refresh/`,
           { refresh: refreshToken }
         );
 
