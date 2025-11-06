@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   PanelLeftClose,
   PanelRightClose,
@@ -10,393 +10,384 @@ import {
   Trash2,
   PencilLine,
   NotebookTabs,
-  CheckCircle,
+  LogOut,
 } from "lucide-react";
-import { Button } from "../../components/ui/button";
-import { Spinner } from "../../components/ui/spinner";
-import api from "../../axiosConfig.js";
-import "./dashboard.css";
+import task_handler from "../task_handler.js";
 
 const Dashboard = () => {
-  const [tasks, setTasks] = useState([]);
-  const [showPopup, setShowPopup] = useState(false); 
-  const [showTaskPopup, setShowTaskPopup] = useState(false); 
-  const [selectedTask, setSelectedTask] = useState(null); 
-  const [newTask, setNewTask] = useState({ title: "", description: "" });
   const [loading, setLoading] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  
-  const token = localStorage.getItem("accessToken");
+  const [tasks, setTasks] = useState([]);
+  const [showPopup, setShowPopup] = useState(false);
+  const [showTaskPopup, setShowTaskPopup] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [newTask, setNewTask] = useState({ title: "", description: "" });
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Fetch all tasks
-  const fetchTasks = async () => {
-    try {
+// Fetch all tasks
+  useEffect(() => {
+    const loadTasks = async () => {
       setLoading(true);
-      const response = await api.get('tasks/all', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setTasks(response.data);
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
+      try {
+        const data = await task_handler.fetchAllTasks();
+        setTasks(data);
+      } catch (err) {
+        console.error("Error fetching tasks:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadTasks();
+  }, []);
+
+
+  //create task
+  const handleCreateTask = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const createdTask = await task_handler.createTask(newTask);
+      setTasks((prev) => [createdTask, ...prev]);
+      setNewTask({ title: "", description: "" });
+      setShowPopup(false);
+    } catch (err) {
+      console.log("Task creation failed:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchTasks();
-  }, []);
 
-  // Add a new task
-  const handleAddTask = async (e) => {
-    e.preventDefault();
-    if (!newTask.title.trim()) return;
+//delete task
+const handleTaskDelete = async (id) => {
+  try {
+    await task_handler.deleteTask(id);
+    setTasks((prev) => prev.filter((task) => task.id !== id))
+  } catch (err) {
+    console.log("Error while deleting task: ", err)
+  }
+}
 
-    try {
-      await api.post(
-        `tasks/create/`,
-        { title: newTask.title, description: newTask.description },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setNewTask({ title: "", description: "" });
-      setShowPopup(false);
-      fetchTasks();
-    } catch (error) {
-      console.error("Error adding task:", error.response?.data || error.message);
-    }
+// Update tasks
+const handleUpdateTask = async (taskId) => {
+  const updatedTask = {
+    title: selectedTask.title,
+    description: selectedTask.description,
+    completed: selectedTask.completed,
   };
 
-  // Delete a task
-  const handleDelete = async (id) => {
-    try {
-      await api.delete(`tasks/delete/${id}/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      fetchTasks();
-      setShowTaskPopup(false);
-    } catch (error) {
-      console.error("Error deleting task:", error);
-    }
-  };
-
-  // Update a task
-  const handleUpdateTask = async (e) => {
-    e.preventDefault();
-    try {
-      await api.put(`tasks/update/${selectedTask.id}/`,
-        {
-          title: selectedTask.title,
-          description: selectedTask.description,
-          completed: selectedTask.completed,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setShowTaskPopup(false);
-      fetchTasks();
-    } catch (error) {
-      console.error("Error updating task:", error);
-    }
-  };
-
-  // Mark task done toggle
-  const handleMarkDone = () => {
-    setSelectedTask({
-      ...selectedTask,
-      completed: !selectedTask.completed,
-    });
-  };
-
-  // Show task details popup
-  const handleShowTaskPopup = (task) => {
-    setSelectedTask(task);
-    setShowTaskPopup(true);
-  };
-
-  // Logout
-  const handleLogout = (e) => {
-    e.preventDefault();
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    window.location.href = "/home/login";
-  };
-
-  //side_bar close
-  const handleToggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
+  try {
+    const updated = await task_handler.updateTask(taskId, updatedTask);
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, ...updated } : t))
+    );
+    setShowTaskPopup(false);
+    console.log("Task updated successfully");
+  } catch (error) {
+    console.error("Error updating task:", error);
+  }
 };
 
+
+  const toggleCompleted = () => {
+    setSelectedTask({ ...selectedTask, completed: !selectedTask.completed });
+  };
+
+  const formatDate = (date) => new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const formatTime = (date) => new Date(date).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  const formatWeekday = (date) => new Date(date).toLocaleDateString("en-US", { weekday: "long" });
+
+  const pendingCount = tasks.filter((t) => !t.completed).length;
+  const completedCount = tasks.filter((t) => t.completed).length;
+
   return (
-    <div className="dash_container">
-      {/* This one Sidebar */}
-      <div className={`side_bar ${sidebarOpen ? "open" : "closed"}`} title="Toggle Sidebar">
-        <div className="side_bar_container">
-          <div className="user_profile">
-            <button className="all_btn" onClick={handleLogout} title="end session">
-              Logout
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      {/* Sidebar */}
+      <div
+        className={`fixed md:static top-0 left-0 h-full z-50 bg-gradient-to-b from-slate-900 to-slate-800 text-white transition-all duration-300 shadow-xl 
+        ${sidebarOpen ? "w-64" : "w-0 md:w-64"} overflow-hidden`}
+      >
+        <div className="p-6 flex flex-col h-full">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-xl font-bold whitespace-nowrap">TaskFlow</h1>
+            <button onClick={() => setSidebarOpen(false)} className="hover:bg-slate-700 p-1 rounded transition md:hidden">
+              <PanelLeftClose size={20} />
             </button>
-            <span className="close_panel" onClick={handleToggleSidebar} title="Toggle Sidebar">
-              <PanelLeftClose />
-            </span>
-          </div>
-          <div className="create">
-            <span onClick={() => setShowPopup(true)} className="create_task" title="Create New Task">
-             <CirclePlus />   Add task
-            </span>
           </div>
 
-          <div className="side_link_list">
-            <ul>
-              <li>
-                <div className="tasks_overview">
-                  <h3>Tasks Filters</h3>
-                </div>
-              </li>
-              <li><a href="#">All Tasks {tasks.length}</a></li>
-              <li><a href="#">Pending</a></li>
-              <li><a href="#">In Progress</a></li>
-              <li><a href="#">Completed</a></li>
-            </ul>
-          </div>
+          <button
+            onClick={() => setShowPopup(true)}
+            className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 py-2 px-4 rounded-lg font-medium transition transform hover:scale-105 mb-4"
+          >
+            <CirclePlus size={20} /> Add Task
+          </button>
+
+          <nav className="space-y-2 flex-1 overflow-y-auto">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide px-2 py-2">Filters</p>
+            <button className="block w-full text-left px-4 py-2 rounded-lg hover:bg-slate-700 transition font-medium">
+              All Tasks <span className="text-xs bg-slate-700 px-2 py-1 rounded ml-2">{tasks.length}</span>
+            </button>
+            <button className="block w-full text-left px-4 py-2 rounded-lg hover:bg-slate-700 transition">
+              Pending <span className="text-xs bg-slate-700 px-2 py-1 rounded ml-2">{pendingCount}</span>
+            </button>
+            <button className="block w-full text-left px-4 py-2 rounded-lg hover:bg-slate-700 transition">
+              Completed <span className="text-xs bg-slate-700 px-2 py-1 rounded ml-2">{completedCount}</span>
+            </button>
+          </nav>
+
+          <button className="mt-auto w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 py-2 px-4 rounded-lg font-medium transition">
+            <LogOut size={18} /> Logout
+          </button>
         </div>
       </div>
+
+      {/* Mobile Sidebar Toggle */}
       {!sidebarOpen && (
-        <span className="open_panel" onClick={handleToggleSidebar}>
-          <PanelRightClose />
-        </span>
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="fixed top-4 left-4 z-50 bg-slate-900 text-white p-2 rounded-lg hover:bg-slate-800 transition md:hidden"
+        >
+          <PanelRightClose size={20} />
+        </button>
       )}
 
-      <div className="content_center">
-        <div className="content_center_container">
-          <div className="tasks_heading">
-            <div className="title_and_btn">
-              <div className="title">My Tasks</div>
-              <button onClick={() => setShowPopup(true)} className="all_btn create_task" title="Create New Task">
-                <CirclePlus />  New Task
+      {/* Main Content */}
+      <main className="flex-1 overflow-auto p-4 sm:p-6 md:p-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <header className="mb-6">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">My Tasks</h2>
+            <p className="text-gray-600 text-sm sm:text-base">
+              {tasks.length} total tasks • {completedCount} completed
+            </p>
+            <button
+              onClick={() => setShowPopup(true)}
+              className="mt-4 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 sm:px-6 rounded-lg font-medium transition transform hover:scale-105"
+            >
+              <CirclePlus size={20} /> New Task
+            </button>
+          </header>
+
+          {/* Tasks Grid */}
+          <section className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden">
+            {tasks.length === 0 ? (
+              <div className="col-span-full text-center py-16">
+                <NotebookTabs size={48} className="mx-auto text-gray-300 mb-4" />
+                <p className="text-gray-500 text-lg font-medium">No tasks yet. Create one to get started</p>
+              </div>
+            ) : (
+              tasks.map((task) => (
+                <div
+                  key={task.id}
+                  onClick={() => setShowTaskPopup(true) || setSelectedTask(task)}
+                  className={`flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-5 bg-white rounded-lg border-2 transition-all duration-200 hover:shadow-lg cursor-pointer ${
+                    task.completed ? "border-green-200 bg-green-50" : "border-gray-200 hover:border-blue-300"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 w-full sm:w-auto">
+                    <GripVertical size={20} className="text-gray-400 flex-shrink-0" />
+                    <input
+                      type="checkbox"
+                      checked={task.completed}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        setTasks(tasks.map((t) => (t.id === task.id ? { ...t, completed: !t.completed } : t)));
+                      }}
+                      className="w-5 h-5 cursor-pointer"
+                    />
+                  </div>
+
+                  <div className="flex-1 w-70">
+                    <p className={`font-medium truncate ${task.completed ? "line-through text-gray-500" : "text-gray-900"}`}>
+                      {task.title}
+                    </p>
+                    <p className="text-sm text-gray-600 truncate">{task.description || "No description"}</p>
+                  </div>
+
+                  <div className="flex gap-2 sm:self-center mt-2 sm:mt-0 ">
+                    <button
+                      onClick={(e) => { 
+                        e.stopPropagation();
+                        setSelectedTask(task);
+                        setShowTaskPopup(true); // just show popup
+                      }}
+                      className="text-blue-600 hover:text-blue-700 p-2 hover:bg-blue-50 rounded transition"
+                    >
+                      <PencilLine size={18} />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTaskDelete(task.id);
+                      }}
+                      className="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded transition"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </section>
+        </div>
+      </main>
+
+      {/* Create Task Modal */}
+      {showPopup && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-[.1px] flex items-center justify-center p-2 sm:p-4 z-99">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-auto">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+              <h2 className="text-lg sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <BadgePlus className="text-blue-600" /> Create Task
+              </h2>
+              <button onClick={() => setShowPopup(false)} className="text-gray-500 hover:text-gray-700 transition">
+                <X size={22} />
               </button>
             </div>
-            <hr />
-          </div>
-          {loading ? (
-            <p className="loading">Loading tasks...</p>
-          ) : (
-            <div>
-              <div className="task_header">
 
+            <form onSubmit={handleCreateTask} className="p-4 sm:p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                <input
+                  type="text"
+                  placeholder="Enter task title"
+                  value={newTask.title}
+                  onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  autoFocus
+                />
               </div>
 
-              <ul className="task_list">
-                {tasks.length === 0 ? (
-                  <span className="no_tasks">
-                    <p>No tasks yet. Add some</p>
-                  </span>
-                ) : (
-                  tasks.map((task) => (
-                    <li key={task.id}>
-                      <div className="title_section">
-                        <div className="row_1">
-                          <div className="grip_icon">
-                            <GripVertical size="24" />
-                          </div>
-                          <input type="checkbox" title="Mark done" checked={task.completed} readOnly/>
-                          <div className="task_label" onClick={() => handleShowTaskPopup(task)} >
-                            <span className="title_view">
-                              {task.title.length > 50
-                                ? `${task.title.substring(0, 50)}...`
-                                : task.title}
-                            </span>
-                          </div>
-                        </div>
-                        
-                        <div className="manipulators row_2">
-                          <button
-                            title="edit"
-                            onClick={() => handleShowTaskPopup(task)}
-                          >
-                            <PencilLine />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(task.id)}
-                            title="delete"
-                          >
-                            <Trash2 size={24} />
-                          </button>
-                        </div>
-                      </div>
-                    </li>
-                  ))
-                )}
-              </ul>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Popup for Creating New Task */}
-      {showPopup && (
-        <div className="popup_overlay">
-          <div className="popup_card">
-            <button className="popup_close_top" type="button" onClick={() => setShowPopup(false)}>
-              <X />
-            </button>
-            <div className="heading">
-              <BadgePlus size={24} />
-              <h2>Create Task</h2>
-            </div>
-            <hr />
-            <form onSubmit={handleAddTask}>
-              <div className="mini_input_container">
-                <input type="text" name="title" placeholder="Enter task title" value={newTask.title}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, title: e.target.value })
-                  }
-                autoFocus/>
-                <Tag />
-              </div>
-              <div className="mini_input_container">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                 <textarea
-                  name="description"
                   placeholder="Enter task description"
                   value={newTask.description}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, description: e.target.value })
-                  }
-                ></textarea>
-                <NotebookTabs />
+                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                  rows="4"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 resize-none"
+                />
               </div>
 
-              <div className="popup_buttons">
-                <button type="submit" className="save_btn">
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowPopup(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition transform hover:scale-105"
+                >
                   Save Task
                 </button>
-
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Popup for Viewing/Editing a Task */}
-      {showTaskPopup && selectedTask && (
-        <div className="popup_overlay">
-          <div className="popup_card">
-            <button className="popup_close_top" type="button" onClick={() => setShowTaskPopup(false)}>
-              <X />
-            </button>
-            <div className="heading">
-              <PencilLine size={24} />
-              <h2>Task Details</h2>
-              <div className="close">
-                
-              </div>
-            </div>
-            <hr />
-            <div className="divider">
 
-              {/* Div 1 */}
-              <section className="edit_section">
-                <div className="activity_box">
-                  <div className="activity_box_header">
-                    <p>Title:</p>
-                    <h4>{selectedTask.title}</h4>
+      {/* Task Details Modal */}
+      {showTaskPopup && selectedTask && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-[.01px] flex items-center justify-center p-2 sm:p-4 z-99">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white">
+              <div className="flex items-center gap-3">
+                <div className="bg-purple-100 p-2 rounded-lg">
+                  <PencilLine size={24} className="text-purple-600" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900">Task Details</h2>
+              </div>
+              <button onClick={() => setShowTaskPopup(false)} className="text-gray-500 hover:text-gray-700 transition">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Activity Section */}
+              <div className="bg-gradient-to-b from-slate-50 to-slate-100 p-5 rounded-lg border border-gray-200">
+                <h3 className="font-semibold text-gray-900 mb-4">Activity</h3>
+                <div className="space-y-3 text-sm">
+                  <div>
+                    <p className="text-xs text-gray-600 uppercase tracking-wide">Added on</p>
+                    <p className="font-medium text-gray-900">{formatDate(selectedTask.created_at)} {formatTime(selectedTask.created_at)}</p>
                   </div>
-                  <div className="activity_box_description">
-                    <p>Description:</p>
-                    <h4>
-                      {selectedTask.description
-                        ? selectedTask.description
-                        : "No description"}
-                    </h4>
+                  <div>
+                    <p className="text-xs text-gray-600 uppercase tracking-wide">Date</p>
+                    <p className="font-medium text-gray-900">{formatWeekday(selectedTask.created_at)}</p>
+                  </div>
+                  <div className="pt-3 border-t border-gray-300">
+                    <p className="text-xs text-gray-600 uppercase tracking-wide">Status</p>
+                    <p className={`font-semibold text-lg ${selectedTask.completed ? "text-green-600" : "text-amber-600"}`}>
+                      {selectedTask.completed ? "✓ Completed" : "⟳ Pending"}
+                    </p>
                   </div>
                 </div>
-                <form onSubmit={handleUpdateTask}>
-                  <div className="mini_input_container">
-                    <input
-                      type="text"
+              </div>
+
+              {/* Edit Section */}
+              <div className="md:col-span-2 space-y-6">
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <p className="text-sm text-gray-600 mb-1">Current Title</p>
+                  <h4 className="text-lg font-semibold text-gray-900">{selectedTask.title}</h4>
+                  <p className="text-sm text-gray-600 mt-3 mb-1">Current Description</p>
+                  <h4 className="text-gray-700">{selectedTask.description || "No description"}</h4>
+                </div>
+
+                <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleUpdateTask(selectedTask.id);
+                    }}
+                    className="space-y-4"
+                  >
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Edit Title</label>
+                    <input 
+                      type="text" 
                       value={selectedTask.title}
-                      onChange={(e) =>
-                        setSelectedTask({
-                          ...selectedTask,
-                          title: e.target.value,
-                        })
-                      }
+                      onChange={(e) => setSelectedTask({ ...selectedTask, title: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition"
                     />
                   </div>
 
-                <div className="mini_input_container">
-                  <textarea value={selectedTask.description} onChange={(e) =>
-                      setSelectedTask({
-                        ...selectedTask,
-                        description: e.target.value,
-                      })
-                    }
-                  ></textarea>
-                </div>
-
-                <div className="popup_buttons">
-                  <div className="check">
-                    <input type="checkbox" name="done" id="done" title="Mark done"/>
-                    <label htmlFor="done">Mark done</label>
-                  </div>
-                  
-                  <div className="check">
-                    <input type="checkbox" name="pending" id="pending" title="pending"/>
-                    <label htmlFor="pending">Mark pending</label>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Edit Description</label>
+                    <textarea 
+                      value={selectedTask.description}
+                      onChange={(e) => setSelectedTask({ ...selectedTask, description: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition resize-none"
+                      rows="4"
+                    />
                   </div>
 
-                  {/* <button type="submit" > </button> */}
-                  <Button 
-                    className="save_btn"
-                    disabled={loading}
-                    type="submit" 
-                  >
-                    {loading ? (
-                    <>
-                      <Spinner className="text-white" /> Saving ...
-                    </>
-                    ) : (
-                      "Save Changes"
-                    )}
-                  </Button>
-                </div>
-              </form>
-              </section>
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-3 cursor-pointer p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedTask.completed}
+                        onChange={toggleCompleted}
+                        className="w-5 h-5 cursor-pointer"
+                      />
+                      <span className="font-medium text-gray-700">Mark as completed</span>
+                    </label>
+                  </div>
 
-              {/* Div 2 */}
-              <div className="task_activity">
-              {(() => {
-                const createdAt = selectedTask.created_at
-                  ? new Date(selectedTask.created_at)
-                  : new Date();
-                const formattedDate = createdAt.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                });
-                const formattedTime = createdAt.toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                });
-                const weekday = createdAt.toLocaleDateString("en-US", {
-                  weekday: "long",
-                });
+                  <div className="flex gap-3 pt-4">
+                    <button type="button" onClick={() => setShowTaskPopup(false)} className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition">
+                      Cancel
+                    </button>
+                    <button type="submit" className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition transform hover:scale-105">
+                      Save Changes
+                    </button>
+                  </div>
+                </form>
+              </div>
 
-                return (
-                  <>
-                    <div className="task_date">
-                      <p className="added_on">
-                        Added on {formattedDate} {formattedTime}
-                      </p>
-                      <p className="day_info">
-                        {formattedDate} {weekday}
-                      </p>
-                      <p className="task_status">
-                        Status: 
-                      </p>
-                    </div>
-                  </>
-                );
-              })()}
+              
             </div>
-            </div>            
           </div>
         </div>
       )}
