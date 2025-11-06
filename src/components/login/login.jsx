@@ -83,7 +83,7 @@ const Signin = () => {
             >
               {loading ? (
                 <>
-                  <Spinner className="text-white" /> Logging in...
+                  <Spinner className="text-white" /> processing...
                 </>
               ) : (
                 "Login"

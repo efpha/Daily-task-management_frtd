@@ -28,19 +28,17 @@ const Register = () => {
     });
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    // Check if passwords match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match!");
       return;
     }
 
-    // http://127.0.0.1:8000/api/users/register/
-    // "https://daily-task-management-backend.onrender.com/api/users/register/"
+    setLoading(true); //for spinner
+
     try {
       // Send registration data to Django backend
       await api.post(`users/register/`, 
@@ -60,6 +58,8 @@ const Register = () => {
     } catch (err) {
       console.error("Registration failed:", err);
       setError("Registration failed. Please try again.");
+    } finally{
+      setLoading(false); //for spinner
     }
   };
 
