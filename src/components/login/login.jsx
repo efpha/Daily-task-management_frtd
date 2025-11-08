@@ -38,7 +38,7 @@ const Signin = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#fff] px-16">
-      <div className="w-3/4 h-1/2 max-w-lg py-5 px-8 bg-white rounded-2xl shadow-lg">
+      <div className="max-w-lg py-5 px-8 bg-white rounded-2xl shadow-lg">
         <h1 className="flex text-3xl font-semibold text-center text-[#40404f] mb-10">
           Provide your details to proceed
         </h1>
