@@ -92,10 +92,16 @@ const handleUpdateTask = async (taskId) => {
     setSelectedTask({ ...selectedTask, completed: !selectedTask.completed });
   };
 
-  const handleLogout = async () => {
-    const res = await api.get('users/logout/')
-    console.log(res)
+const handleLogout = async () => {
+  try {
+    const res = await api.post('users/logout/', {}, { withCredentials: true });
+    
+    localStorage.removeItem("accessToken"); 
+    window.location.href = "/"; 
+  } catch (error) {
   }
+};
+
 
   const formatDate = (date) => new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
   const formatTime = (date) => new Date(date).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
