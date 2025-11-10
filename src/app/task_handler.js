@@ -49,10 +49,6 @@ const task_handler = {
    * Update an existing task
    * @param {number|string} taskId - Task ID to update
    * @param {Object} taskData - Updated task data
-   * @param {string} taskData.title - Updated title
-   * @param {string} taskData.description - Updated description
-   * @param {boolean} taskData.completed - Task completion status
-   * @returns {Promise<Object>} Updated task object
    */
   updateTask: async (taskId, taskData) => {
     try {
@@ -76,10 +72,7 @@ const task_handler = {
   /**
    * Delete a task by ID
    * @param {number|string} taskId - Task ID to delete
-   * @returns {Promise<Object>} Delete response
    */
-
-  
   deleteTask: async (taskId) => {
     try {
       const token = getToken();
@@ -94,10 +87,9 @@ const task_handler = {
   },
 
   /**
-   * Toggle task completion status
+   * Toggle task completion status (helper)
    * @param {number|string} taskId - Task ID
-   * @param {boolean} completed - New completion status
-   * @returns {Promise<Object>} Updated task object
+   * @param {boolean} completed - Current completion status
    */
   toggleTaskCompletion: async (taskId, completed) => {
     try {
@@ -115,9 +107,30 @@ const task_handler = {
   },
 
   /**
+   * Mark a task as completed
+   * @param {number|string} taskId - Task ID to mark as complete
+   * @returns {Promise<Object>} Updated task
+   */
+
+  // 
+  handleMarkComplete: async (taskId) => {
+    try {
+      const token = getToken();
+      const response = await api.patch(
+        `tasks/complete/${taskId}/`,
+        {}, // no body needed
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error marking task as completed:", error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+
+  /**
    * Get a single task by ID
-   * @param {number|string} taskId - Task ID
-   * @returns {Promise<Object>} Task object
    */
   getTaskById: async (taskId) => {
     try {
