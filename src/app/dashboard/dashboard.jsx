@@ -88,10 +88,20 @@ const handleUpdateTask = async (taskId) => {
   }
 };
 
-  const toggleCompleted = () => {
-    setSelectedTask({ ...selectedTask, completed: !selectedTask.completed });
-  };
 
+const handleMarkComplete = async (taskId) => {
+  console.log("Task ID in handleMarkComplete:", taskId);
+  try {
+    const updatedTask = await task_handler.handleMarkComplete(taskId);
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? updatedTask : t))
+    );
+  } catch (err) {
+    console.error("Failed to mark task complete:", err);
+  }
+};
+
+//Logout
 const handleLogout = async () => {
   try {
     const res = await api.post('users/logout/', {}, { withCredentials: true });
@@ -198,10 +208,10 @@ const handleLogout = async () => {
                     <GripVertical size={20} className="text-gray-400 flex-shrink-0" />
                     <input
                       type="checkbox"
-                      checked={task.completed}
+                      checked={task.status === "completed"} // or task.completed if you sync status -> completed boolean
                       onChange={(e) => {
                         e.stopPropagation();
-                        setTasks(tasks.map((t) => (t.id === task.id ? { ...t, completed: !t.completed } : t)));
+                        handleMarkComplete(task.id);
                       }}
                       className="w-5 h-5 cursor-pointer bg-slate-800"
                     />
@@ -385,7 +395,7 @@ const handleLogout = async () => {
                       <input 
                         type="checkbox" 
                         checked={selectedTask.completed}
-                        onChange={toggleCompleted}
+                        onChange={handleMarkComplete}
                         className="w-5 h-5 cursor-pointer bg-slate-800"
                       />
                       <span className="font-medium text-gray-700">Mark as completed</span>
@@ -402,8 +412,6 @@ const handleLogout = async () => {
                   </div>
                 </form>
               </div>
-
-              
             </div>
           </div>
         </div>
