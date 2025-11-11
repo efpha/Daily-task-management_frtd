@@ -107,15 +107,12 @@ const handleMarkComplete = async (taskId) => {
 
 //Logout
 const handleLogout = async () => {
-  setLoading(true)
   try {
     const res = await api.post('users/logout/', {}, { withCredentials: true });
     
     localStorage.removeItem("accessToken"); 
     window.location.href = "/"; 
   } catch (error) {
-  }finally{
-    setLoading(false)
   }
 };
 
@@ -165,15 +162,7 @@ const handleLogout = async () => {
           <button 
             onClick={handleLogout}
             className="mt-auto w-full flex items-center justify-center gap-2 text-gray-600 bg-[#f0f0f4] hover:bg-gray-700 hover:text-white py-2 px-4 rounded-lg font-medium transition cursor-pointer">
-            {loading ? (
-                <>
-                  <Spinner className="text-white" /> Logging out...
-                </>
-              ) : (
-                <>
-                  <LogOut size={18} /> Logout
-                </>
-              )}
+            Logout
           </button>
         </div>
       </div>
