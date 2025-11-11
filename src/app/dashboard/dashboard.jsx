@@ -167,11 +167,11 @@ const handleLogout = async () => {
         </div>
       </div>
 
-      {/* Mobile Sidebar Toggle */}
+{/* Mobile Sidebar Toggle */}
       {!sidebarOpen && (
         <button
           onClick={() => setSidebarOpen(true)}
-          className="fixed top-4 left-4 z-50 bg-slate-900 text-white p-2 rounded-lg hover:bg-slate-800 text-white transition md:hidden cursor-pointer"
+          className="fixed top-4 left-4 z-40 bg-slate-900 text-white p-2 rounded-lg hover:bg-slate-800 transition md:hidden cursor-pointer"
         >
           <PanelRightClose size={20} />
         </button>
@@ -181,14 +181,14 @@ const handleLogout = async () => {
       <main className="flex-1 overflow-auto p-4 sm:p-6 md:p-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <header className="mb-6">
+          <header className="mb-6 pt-12 md:pt-0">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">My Tasks</h2>
             <p className="text-gray-600 text-sm sm:text-base">
               {tasks.length} total tasks • {completedCount} completed
             </p>
             <button
               onClick={() => setShowPopup(true)}
-              className="mt-4 flex items-center gap-2 text-white bg-slate-800 hover:bg-slate-700 text-white py-2 px-4 sm:px-6 rounded-lg font-medium transition transform hover:scale-105 cursor-pointer"
+              className="mt-4 flex items-center gap-2 text-white bg-slate-800 hover:bg-slate-700 py-2 px-4 sm:px-6 rounded-lg font-medium transition transform hover:scale-105 cursor-pointer"
             >
               <CirclePlus size={20} /> New Task
             </button>
