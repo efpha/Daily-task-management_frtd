@@ -121,7 +121,7 @@ const Register = () => {
             >
               {loading ? (
                 <>
-                  <Spinner className="text-[#40404f]" /> processing...
+                  <Spinner /> processing...
                 </>
               ) : (
                 "Continue"
