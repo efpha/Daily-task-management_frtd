@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import task_handler from "../task_handler.js";
 import api from '../../axiosConfig.js'
+import { Spinner } from "../../components/ui/spinner.jsx";
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(false);
@@ -192,67 +193,74 @@ const handleLogout = async () => {
 
           {/* Tasks Grid */}
           <section className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden">
-            {tasks.length === 0 ? (
-              <div className="col-span-full text-center py-16">
-                <NotebookTabs size={48} className="mx-auto text-gray-300 mb-4" />
-                <p className="text-gray-500 text-lg font-medium">No tasks yet. Create one to get started</p>
+            {loading ? (
+              <div className="flex items-center justify-center gap-2 p-4">
+                <Spinner />
+                <span className="text-gray-600">Loading tasks...</span>
               </div>
             ) : (
-              tasks.map((task) => (
-                <div
-                  key={task.id}
-                  onClick={() => setShowTaskPopup(true) || setSelectedTask(task)}
-                  className={`flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-5 bg-white rounded-lg border border-gray-300 border-2 transition-all duration-200 cursor-pointer hover:bg-gray-100`}
-                >
-                  <div className="flex items-center gap-3 w-full sm:w-auto ">
-                    <GripVertical size={20} className="text-gray-400 flex-shrink-0" />
-                    <input
-                      type="checkbox"
-                      checked={task.status === "completed"} // or task.completed if you sync status -> completed boolean
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        handleMarkComplete(task.id);
-                      }}
-                      className="w-5 h-5 cursor-pointer bg-slate-800"
-                    />
+                tasks.length === 0 ? (
+                  <div className="col-span-full text-center py-16">
+                    <NotebookTabs size={48} className="mx-auto text-gray-300 mb-4" />
+                    <p className="text-gray-500 text-lg font-medium">No tasks yet. Create one to get started</p>
                   </div>
+                ) : (
+                  tasks.map((task) => (
+                    <div
+                      key={task.id}
+                      onClick={() => setShowTaskPopup(true) || setSelectedTask(task)}
+                      className={`flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-5 bg-white rounded-lg border border-gray-300 border-2 transition-all duration-200 cursor-pointer hover:bg-gray-100`}
+                    >
+                      <div className="flex items-center gap-3 w-full sm:w-auto ">
+                        <GripVertical size={20} className="text-gray-400 flex-shrink-0" />
+                        <input
+                          type="checkbox"
+                          checked={task.status === "completed"} // or task.completed if you sync status -> completed boolean
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            handleMarkComplete(task.id);
+                          }}
+                          className="w-5 h-5 cursor-pointer bg-slate-800"
+                        />
+                      </div>
 
-                  <div className="flex-1 min-w-0 overflow-hidden px-3">
-                    <p
-                      className={`font-medium truncate ${
-                        task.completed ? "line-through text-gray-500" : "text-gray-900"
-                      }`}
-                    >
-                      {task.title}
-                    </p>
-                    <p className="text-sm text-gray-600 truncate">
-                      {task.description || "No description"}
-                    </p>
-                  </div>
+                      <div className="flex-1 min-w-0 overflow-hidden px-3">
+                        <p
+                          className={`font-medium truncate ${
+                            task.completed ? "line-through text-gray-500" : "text-gray-900"
+                          }`}
+                        >
+                          {task.title}
+                        </p>
+                        <p className="text-sm text-gray-600 truncate">
+                          {task.description || "No description"}
+                        </p>
+                      </div>
 
-                  <div className="flex gap-2 sm:self-center mt-2 sm:mt-0">
-                    <button
-                      onClick={(e) => { 
-                        e.stopPropagation();
-                        setSelectedTask(task);
-                        setShowTaskPopup(true);
-                      }}
-                      className="text-gray-800  p-2 hover:border-1 rounded transition cursor-pointer"
-                    >
-                      <PencilLine size={18} />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleTaskDelete(task.id);
-                      }}
-                      className="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded transition cursor-pointer"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </div>
-              ))
+                      <div className="flex gap-2 sm:self-center mt-2 sm:mt-0">
+                        <button
+                          onClick={(e) => { 
+                            e.stopPropagation();
+                            setSelectedTask(task);
+                            setShowTaskPopup(true);
+                          }}
+                          className="text-gray-800  p-2 hover:border-1 rounded transition cursor-pointer"
+                        >
+                          <PencilLine size={18} />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTaskDelete(task.id);
+                          }}
+                          className="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded transition cursor-pointer"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )
             )}
           </section>
         </div>
