@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import task_do from '../../../public/images/forget_dont.jpg'
 
 const Home = () => {
   return (
