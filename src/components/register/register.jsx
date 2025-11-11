@@ -59,7 +59,7 @@ const Register = () => {
       console.error("Registration failed:", err);
       setError("Registration failed. Please try again.");
     } finally{
-      setLoading(false); //for spinner
+      setLoading(false);
     }
   };
 
