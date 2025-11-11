@@ -191,12 +191,12 @@ const handleLogout = async () => {
             </button>
           </header>
 
-          {/* Tasks Grid */}
+{/* Tasks Grid */}
           <section className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden">
             {loading ? (
-              <div className="flex items-center justify-center gap-2 p-4">
+              <div className="col-span-full flex flex-col items-center justify-center py-16">
                 <Spinner />
-                <span className="text-gray-600">Loading tasks...</span>
+                <span className="text-gray-600 mt-4">Loading tasks...</span>
               </div>
             ) : (
                 tasks.length === 0 ? (
