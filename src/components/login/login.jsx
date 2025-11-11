@@ -37,9 +37,9 @@ const Signin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#fff] px-16">
-      <div className="max-w-lg py-5 px-8 bg-white rounded-2xl shadow-lg">
-        <h1 className="flex text-3xl font-semibold text-center text-[#40404f] mb-10">
+    <div className="min-h-screen flex items-center justify-center bg-slate-900 px-16">
+      <div className="max-w-lg p-12 rounded-2xl shadow-lg">
+        <h1 className="flex text-3xl font-semibold text-center text-white mb-10">
           Provide your details to proceed
         </h1>
 
@@ -52,7 +52,7 @@ const Signin = () => {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-md px-5 py-4 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#40404f] transition"
+              className="w-full border border-gray-300 rounded-md px-5 py-4 text-white placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition"
             />
 
             <input
@@ -62,15 +62,15 @@ const Signin = () => {
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-md px-5 py-4 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#40404f] transition"
+              className="w-full border border-gray-300 rounded-md px-5 py-4  text-white placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition"
             />
           </section>
 
-          <div className="flex flex-row justify-center gap-5 text-sm text-[#40404f] font-medium">
-            <Link to="#" className="hover:text-gray-700">
+          <div className="flex flex-row justify-center gap-5 text-sm text-slate-300 font-medium">
+            <Link to="#" className="hover:text-white transition">
               Forgot password?
             </Link>
-            <Link to="/home/register" className="hover:text-gray-700">
+            <Link to="/home/register" className="hover:text-white transition">
               Create Account
             </Link>
           </div>
@@ -79,14 +79,14 @@ const Signin = () => {
             <Button
               type="submit"
               disabled={loading}
-              className="w-72 bg-[#40404f] text-white py-4 rounded-md hover:bg-[#353540] transition flex items-center justify-center gap-2 text-base"
+              className="w-72 bg-white hover:bg-white text-[#40404f] py-4 rounded-md transition flex items-center justify-center gap-2 text-base"
             >
               {loading ? (
                 <>
                   <Spinner className="text-white" /> processing...
                 </>
               ) : (
-                "Login"
+                "Continue"
               )}
             </Button>
           </div>

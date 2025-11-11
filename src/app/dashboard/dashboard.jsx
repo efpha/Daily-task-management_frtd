@@ -128,7 +128,7 @@ const handleLogout = async () => {
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar */}
       <div
-        className={`fixed md:static top-0 left-0 h-full z-50 bg-gradient-to-b from-slate-900 to-slate-800 text-white transition-all duration-300 shadow-xl 
+        className={`fixed md:static top-0 left-0 h-full z-50 bg-slate-900 text-white transition-all duration-300 shadow-xl 
         ${sidebarOpen ? "w-64" : "w-0 md:w-64"} overflow-hidden`}
       >
         <div className="p-6 flex flex-col h-full">
