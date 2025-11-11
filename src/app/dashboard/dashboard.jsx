@@ -71,6 +71,7 @@ const handleTaskDelete = async (id) => {
 
 // Update tasks
 const handleUpdateTask = async (taskId) => {
+  setLoading(true)
   const updatedTask = {
     title: selectedTask.title,
     description: selectedTask.description,
@@ -86,6 +87,8 @@ const handleUpdateTask = async (taskId) => {
     console.log("Task updated successfully");
   } catch (error) {
     console.error("Error updating task:", error);
+  } finally{
+    setLoading(false)
   }
 };
 
@@ -104,12 +107,15 @@ const handleMarkComplete = async (taskId) => {
 
 //Logout
 const handleLogout = async () => {
+  setLoading(true)
   try {
     const res = await api.post('users/logout/', {}, { withCredentials: true });
     
     localStorage.removeItem("accessToken"); 
     window.location.href = "/"; 
   } catch (error) {
+  }finally{
+    setLoading(false)
   }
 };
 
@@ -159,7 +165,15 @@ const handleLogout = async () => {
           <button 
             onClick={handleLogout}
             className="mt-auto w-full flex items-center justify-center gap-2 text-gray-600 bg-[#f0f0f4] hover:bg-gray-700 hover:text-white py-2 px-4 rounded-lg font-medium transition cursor-pointer">
-            <LogOut size={18} /> Logout
+            {loading ? (
+                <>
+                  <Spinner className="text-white" /> Logging out...
+                </>
+              ) : (
+                <>
+                  <LogOut size={18} /> Logout
+                </>
+              )}
           </button>
         </div>
       </div>
@@ -414,8 +428,18 @@ const handleLogout = async () => {
                     <button type="button" onClick={() => setShowTaskPopup(false)} className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition cursor-pointer">
                       Cancel
                     </button>
-                    <button type="submit" className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-800 text-[#f0f0f4] rounded-lg font-medium transition transform cursor-pointer">
-                      Save Changes
+                    <button 
+                      type="submit" 
+                      className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-800 text-white rounded-lg font-medium transition transform cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loading ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <Spinner className="text-white" />
+                          <span>Saving...</span>
+                        </div>
+                      ) : (
+                        "Save changes"
+                      )}
                     </button>
                   </div>
                 </form>
