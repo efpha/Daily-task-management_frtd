@@ -329,7 +329,14 @@ const handleLogout = async () => {
                   type="submit"
                   className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-[#f0f0f4] rounded-lg font-medium transition cursor-pointer"
                 >
-                  Save Task
+                  {loading ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <Spinner className="text-white" />
+                          <span>Saving...</span>
+                        </div>
+                      ) : (
+                        "Save"
+                      )}
                 </button>
               </div>
             </form>
