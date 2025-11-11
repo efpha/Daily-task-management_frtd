@@ -133,7 +133,7 @@ const handleLogout = async () => {
       >
         <div className="p-6 flex flex-col h-full">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-xl font-bold whitespace-nowrap">TaskFlow</h1>
+            <h1 className="text-xl font-bold whitespace-nowrap">Task Manager</h1>
             <button onClick={() => setSidebarOpen(false)} className="hover:bg-slate-700 p-1 rounded transition md:hidden cursor-pointer">
               <PanelLeftClose size={20} />
             </button>
