@@ -4,6 +4,7 @@ import Home from "./app/home/home";
 import Dashboard from "./app/dashboard/dashboard";
 import Signin from "./components/login/login";
 import Register from "./components/register/register";
+import Password_reset from "./components/password_reset/password_reset";
 import "./App.css";
 import { AuthProvider, AuthContext } from "./authcontext.jsx";
 
@@ -22,6 +23,7 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/home/login" element={<Signin />} />
           <Route path="/home/register" element={<Register />} />
+          <Route path="/home/password_reset" element={<Password_reset />} />
           
           <Route
             path="/dashboard"

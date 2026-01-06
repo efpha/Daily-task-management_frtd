@@ -67,7 +67,7 @@ const Signin = () => {
           </section>
 
           <div className="flex flex-row justify-center gap-5 text-sm text-slate-300 font-medium">
-            <Link to="#" className="hover:text-white transition">
+            <Link to="/home/password_reset" className="hover:text-white transition">
               Forgot password?
             </Link>
             <Link to="/home/register" className="hover:text-white transition">
