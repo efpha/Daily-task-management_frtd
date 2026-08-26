@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import api from "../axiosConfig.js";
+import { toast } from "sonner";
 
 export const usePasswordReset = () => {
   const [email, setEmail] = useState("");
@@ -24,9 +25,11 @@ export const usePasswordReset = () => {
         setSuccess(
           "If an account with this email exists, a password reset link has been sent."
         );
+        toast.success("Reset link requested", { description: "Check your inbox for the next step." });
         setEmail("");
       } catch (err) {
         console.error("Forgot password error:", err);
+        toast.error("Couldn’t request a reset link", { description: "Please try again in a moment." });
         setError("Something went wrong. Please try again.");
       } finally {
         setLoading(false);
