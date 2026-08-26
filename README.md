@@ -43,14 +43,15 @@ From this directory:
 npm install
 ```
 
-Create a local environment file named `.env.local`:
+The app defaults to the local Django API at `http://127.0.0.1:8000/api/`. To
+override it, create a local environment file named `.env.local`:
 
 ```dotenv
-VITE_BASE_LIVE_URL=http://127.0.0.1:8000/api/
-VITE_BASE_LOCAL_URL=http://127.0.0.1:8000/api/
+VITE_API_URL=http://127.0.0.1:8000/api/
 ```
 
-`VITE_BASE_LIVE_URL` is currently the URL used by [`src/axiosConfig.js`](src/axiosConfig.js). `VITE_BASE_LOCAL_URL` is read there but is not currently selected by the application, so use the live variable for local development unless the Axios configuration is changed.
+The older `VITE_BASE_LOCAL_URL` and `VITE_BASE_LIVE_URL` variables remain
+supported for existing deployments, but `VITE_API_URL` is the preferred setting.
 
 Start the development server:
 
@@ -86,7 +87,8 @@ The Vercel rewrite in [`vercel.json`](vercel.json) sends all paths to `/`, allow
 
 The Axios client is configured in [`src/axiosConfig.js`](src/axiosConfig.js):
 
-- `baseURL` comes from `VITE_BASE_LIVE_URL`.
+- `baseURL` comes from `VITE_API_URL`, with development/local and deployment
+  fallbacks for the older variable names.
 - JSON is the default request content type.
 - `withCredentials: true` is enabled for the backend's session/cookie behavior.
 - The access token is added as `Authorization: Bearer <token>` for non-public requests.
@@ -171,7 +173,7 @@ Build the application with:
 npm run build
 ```
 
-Deploy the generated `dist/` directory with a static host such as Vercel. Configure `VITE_BASE_LIVE_URL` in the hosting provider's build environment, then rebuild after changing it. The API must allow the deployed frontend origin through CORS and, if cookies are used, configure compatible secure/SameSite cookie settings.
+Deploy the generated `dist/` directory with a static host such as Vercel. Configure `VITE_API_URL` in the hosting provider's build environment, then rebuild after changing it. The API must allow the deployed frontend origin through CORS and, if cookies are used, configure compatible secure/SameSite cookie settings.
 
 Before deploying, verify:
 
@@ -188,7 +190,6 @@ These are observations from the current implementation and are useful when exten
 - The task creation form currently sends only `title` and `description`; `due_date` is supported by the backend model but is not exposed in the current UI.
 - The dashboard's “All Tasks”, “Pending”, and “Completed” controls currently display counts but do not yet filter the task list.
 - The password-reset screen calls `users/forgot-password/`, but that endpoint is not present in the backend URL configuration shown in this repository. Add the backend endpoint or adjust the frontend before relying on the flow.
-- `src/authcontext.jsx` performs an initial token check with the bare Axios package rather than the configured client. If relative requests fail outside the API origin, use the configured API client for that check and for refresh calls.
 - `npm run build` is the primary production verification command. `npm run lint` currently reports existing issues in the dashboard logout handler, auth context, shared button export, unused Axios configuration value, logout stub, and CommonJS Tailwind config; these should be cleaned up before enforcing lint in CI.
 
 ## Contributing
