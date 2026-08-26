@@ -7,17 +7,19 @@ import Register from "./components/register/register";
 import Password_reset from "./components/password_reset/password_reset";
 import "./App.css";
 import { AuthProvider, AuthContext } from "./authcontext.jsx";
+import { Toaster } from "./components/ui/sonner.jsx";
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useContext(AuthContext);
-  return isAuthenticated ? children : <Navigate to="/dashboard" />;
+  return isAuthenticated ? children : <Navigate to="/home/login" replace />;
 };
 
 function App() {
   return (
     <AuthProvider>
       <Router>
+        <Toaster position="top-right" richColors closeButton />
         <Routes>
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/home" element={<Home />} />
