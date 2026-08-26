@@ -58,7 +58,7 @@ const task_handler = {
         {
           title: taskData.title,
           description: taskData.description,
-          completed: taskData.completed,
+          status: taskData.status,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );

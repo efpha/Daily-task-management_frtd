@@ -1,102 +1,64 @@
-import React, { useState, useContext } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import api from "../../axiosConfig.js";
-import { Button } from "../ui/button";
-import { Spinner } from "../ui/spinner";
 import { AuthContext } from "../../authcontext.jsx";
+import AuthField from "../auth/AuthField.jsx";
+import AuthLayout from "../auth/AuthLayout.jsx";
+import { Spinner } from "../ui/spinner";
+import { toast } from "sonner";
 
 const Signin = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useContext(AuthContext);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (event) => {
+    setFormData((current) => ({ ...current, [event.target.name]: event.target.value }));
+    if (error) setError("");
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      const response = await api.post('users/login/', formData);
-
+      const response = await api.post("users/login/", formData);
       const { access_token, refresh_token } = response.data;
       login(access_token, refresh_token);
+      toast.success("Welcome back", { description: "Your workspace is ready." });
       navigate("/dashboard");
     } catch (err) {
       console.error("Login failed:", err);
-      console.error("Error response:", err.response?.data);
-      setError("Invalid email or password. Please try again.");
+      toast.error("Sign in failed", { description: "Check your email and password and try again." });
+      setError("We couldn’t sign you in. Check your email and password and try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-900 px-16">
-      <div className="max-w-lg p-12 rounded-2xl shadow-lg">
-        <h1 className="flex text-3xl font-semibold text-center text-white mb-10">
-          Provide your details to proceed
-        </h1>
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3 justify-center ">
-          <section className="flex flex-col gap-10">
-            <input
-              type="email"
-              name="email"
-              placeholder="Email e.g. john@example.com"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded-md px-5 py-4 text-white placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition"
-            />
-
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded-md px-5 py-4  text-white placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition"
-            />
-          </section>
-
-          <div className="flex flex-row justify-center gap-5 text-sm text-slate-300 font-medium">
-            <Link to="/home/password_reset" className="hover:text-white transition">
-              Forgot password?
-            </Link>
-            <Link to="/home/register" className="hover:text-white transition">
-              Create Account
-            </Link>
-          </div>
-
-          <div className="flex justify-center mt-6">
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-72 bg-white hover:bg-white text-[#40404f] py-4 rounded-md transition flex items-center justify-center gap-2 text-base"
-            >
-              {loading ? (
-                <>
-                  <Spinner /> processing...
-                </>
-              ) : (
-                "Continue"
-              )}
-            </Button>
-          </div>
-
-          {error && (
-            <p className="text-red-600 text-sm text-center mt-4">{error}</p>
-          )}
-        </form>
-      </div>
-    </div>
+    <AuthLayout
+      // eyebrow="Welcome back"
+      title="Sign in to your workspace"
+      // description="Pick up where you left off and keep your day moving."
+      footer={<>New to Task Manager? <Link to="/home/register">Create an account</Link></>}
+    >
+      <form className="auth-form" onSubmit={handleSubmit}>
+        {location.state?.registered && <p className="auth-alert success" role="status"><CheckCircle2 size={17} />Account created. You can sign in now.</p>}
+        {error && <p className="auth-alert error" role="alert"><AlertCircle size={17} />{error}</p>}
+        <AuthField id="email" label="Email address" type="email" value={formData.email} onChange={handleChange} placeholder="you@example.com" autoComplete="email" />
+        <AuthField id="password" label="Password" type="password" value={formData.password} onChange={handleChange} placeholder="Enter your password" autoComplete="current-password" />
+        <div className="auth-form-links"><span /><Link to="/home/password_reset">Forgot your password?</Link></div>
+        <button className="auth-submit" type="submit" disabled={loading}>
+          {loading ? <><Spinner /> Signing in...</> : "Sign in"}
+        </button>
+      </form>
+    </AuthLayout>
   );
 };
 

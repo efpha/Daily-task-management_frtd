@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import api from "axios";
+import api from "./axiosConfig.js";
 
 export const AuthContext = createContext();
 
@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
   const verifyToken = async (accessToken) => {
     try {
       // Try to decode or ping a protected route
-      await api.get(`tasks/all`, {
+      await api.get("tasks/all/", {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
     } catch (error) {
