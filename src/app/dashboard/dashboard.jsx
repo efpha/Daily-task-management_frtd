@@ -1,449 +1,218 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
+  CalendarDays,
+  CirclePlus,
+  GripVertical,
+  LogOut,
+  NotebookTabs,
   PanelLeftClose,
   PanelRightClose,
-  X,
-  GripVertical,
-  CirclePlus,
-  BadgePlus,
-  Tag,
-  Trash2,
   PencilLine,
-  NotebookTabs,
-  LogOut,
+  Trash2,
 } from "lucide-react";
+import { toast } from "sonner";
+
+import api from "../../axiosConfig.js";
 import task_handler from "../task_handler.js";
-import api from '../../axiosConfig.js'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../../components/ui/alert-dialog.jsx";
+import { Badge } from "../../components/ui/badge.jsx";
+import { Button } from "../../components/ui/button.jsx";
+import { Checkbox } from "../../components/ui/checkbox.jsx";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardTitle,
+} from "../../components/ui/card.jsx";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog.jsx";
+import { Input } from "../../components/ui/input.jsx";
+import { Label } from "../../components/ui/label.jsx";
 import { Spinner } from "../../components/ui/spinner.jsx";
+import { Textarea } from "../../components/ui/textarea.jsx";
+
+const isCompleted = (task) => task.status === "completed" || task.completed === true;
+const taskDate = (task) => task.date_created || task.created_at;
 
 const Dashboard = () => {
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [deleteCandidate, setDeleteCandidate] = useState(null);
   const [tasks, setTasks] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
-  const [showTaskPopup, setShowTaskPopup] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [newTask, setNewTask] = useState({ title: "", description: "" });
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [filter, setFilter] = useState("all");
 
-// Fetch all tasks
   useEffect(() => {
     const loadTasks = async () => {
-      setLoading(true);
       try {
-        const data = await task_handler.fetchAllTasks();
-        setTasks(data);
-      } catch (err) {
-        console.error("Error fetching tasks:", err);
+        setTasks(await task_handler.fetchAllTasks());
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+        toast.error("Couldn’t load your tasks", { description: "Please refresh the page and try again." });
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
     loadTasks();
   }, []);
 
+  const pendingCount = tasks.filter((task) => !isCompleted(task)).length;
+  const completedCount = tasks.filter(isCompleted).length;
+  const filteredTasks = useMemo(() => {
+    if (filter === "pending") return tasks.filter((task) => !isCompleted(task));
+    if (filter === "completed") return tasks.filter(isCompleted);
+    return tasks;
+  }, [filter, tasks]);
 
-  //create task
-  const handleCreateTask = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  const openCreateDialog = () => {
+    setNewTask({ title: "", description: "" });
+    setShowCreateDialog(true);
+  };
+
+  const handleCreateTask = async (event) => {
+    event.preventDefault();
+    if (!newTask.title.trim()) {
+      toast.error("Add a title first", { description: "Every task needs a short title." });
+      return;
+    }
+    setIsSaving(true);
     try {
-      const createdTask = await task_handler.createTask(newTask);
-      setTasks((prev) => [createdTask, ...prev]);
+      const createdTask = await task_handler.createTask({ title: newTask.title.trim(), description: newTask.description.trim() });
+      setTasks((current) => [createdTask, ...current]);
+      setShowCreateDialog(false);
       setNewTask({ title: "", description: "" });
-      setShowPopup(false);
-    } catch (err) {
-      console.log("Task creation failed:", err);
+      toast.success("Task created", { description: `“${createdTask.title}” is ready to go.` });
+    } catch (error) {
+      console.error("Task creation failed:", error);
+      toast.error("Couldn’t create task", { description: "Please check your connection and try again." });
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
-
-//delete task
-const handleTaskDelete = async (id) => {
-  try {
-    await task_handler.deleteTask(id);
-    setTasks((prev) => prev.filter((task) => task.id !== id))
-  } catch (err) {
-    console.log("Error while deleting task: ", err)
-  }
-}
-
-// Update tasks
-const handleUpdateTask = async (taskId) => {
-  setLoading(true)
-  const updatedTask = {
-    title: selectedTask.title,
-    description: selectedTask.description,
-    completed: selectedTask.completed,
+  const handleTaskDelete = async (id) => {
+    setDeletingId(id);
+    try {
+      await task_handler.deleteTask(id);
+      setTasks((current) => current.filter((task) => task.id !== id));
+      if (selectedTask?.id === id) setSelectedTask(null);
+      setDeleteCandidate(null);
+      toast.success("Task deleted");
+    } catch (error) {
+      console.error("Error while deleting task:", error);
+      toast.error("Couldn’t delete task", { description: "Please try again." });
+    } finally {
+      setDeletingId(null);
+    }
   };
 
-  try {
-    const updated = await task_handler.updateTask(taskId, updatedTask);
-    setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, ...updated } : t))
-    );
-    setShowTaskPopup(false);
-    console.log("Task updated successfully");
-  } catch (error) {
-    console.error("Error updating task:", error);
-  } finally{
-    setLoading(false)
-  }
-};
+  const handleUpdateTask = async (event) => {
+    event.preventDefault();
+    if (!selectedTask?.title.trim()) {
+      toast.error("Add a title first");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const updated = await task_handler.updateTask(selectedTask.id, {
+        title: selectedTask.title.trim(),
+        description: selectedTask.description?.trim() || "",
+        status: selectedTask.status || (isCompleted(selectedTask) ? "completed" : "pending"),
+      });
+      setTasks((current) => current.map((task) => (task.id === selectedTask.id ? { ...task, ...updated } : task)));
+      setSelectedTask(null);
+      toast.success("Task updated");
+    } catch (error) {
+      console.error("Error updating task:", error);
+      toast.error("Couldn’t update task", { description: "Please try again." });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
+  const handleMarkComplete = async (task) => {
+    if (isCompleted(task)) return;
+    try {
+      const updatedTask = await task_handler.handleMarkComplete(task.id);
+      setTasks((current) => current.map((item) => (item.id === task.id ? updatedTask : item)));
+      setSelectedTask((current) => (current?.id === task.id ? { ...current, ...updatedTask } : current));
+      toast.success("Task completed", { description: `Nice work on “${task.title}”.` });
+    } catch (error) {
+      console.error("Failed to mark task complete:", error);
+      toast.error("Couldn’t update task status", { description: "Please try again." });
+    }
+  };
 
-const handleMarkComplete = async (taskId) => {
-  console.log("Task ID in handleMarkComplete:", taskId);
-  try {
-    const updatedTask = await task_handler.handleMarkComplete(taskId);
-    setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? updatedTask : t))
-    );
-  } catch (err) {
-    console.error("Failed to mark task complete:", err);
-  }
-};
+  const handleLogout = async () => {
+    try {
+      await api.post("users/logout/", {}, { withCredentials: true });
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      toast.success("You’re signed out");
+      window.location.href = "/";
+    }
+  };
 
-//Logout
-const handleLogout = async () => {
-  try {
-    const res = await api.post('users/logout/', {}, { withCredentials: true });
-    
-    localStorage.removeItem("accessToken"); 
-    window.location.href = "/"; 
-  } catch (error) {
-  }
-};
-
-
-  const formatDate = (date) => new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  const formatTime = (date) => new Date(date).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-  const formatWeekday = (date) => new Date(date).toLocaleDateString("en-US", { weekday: "long" });
-
-  const pendingCount = tasks.filter((t) => !t.completed).length;
-  const completedCount = tasks.filter((t) => t.completed).length;
+  const formatDate = (date) => date ? new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+  const formatWeekday = (date) => date ? new Date(date).toLocaleDateString("en-US", { weekday: "long" }) : "—";
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {/* Sidebar */}
-      <div
-        className={`fixed md:static top-0 left-0 h-full z-50 bg-slate-900 text-white transition-all duration-300 shadow-xl 
-        ${sidebarOpen ? "w-64" : "w-0 md:w-64"} overflow-hidden`}
-      >
-        <div className="p-6 flex flex-col h-full">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-xl font-bold whitespace-nowrap">Task Manager</h1>
-            <button onClick={() => setSidebarOpen(false)} className="hover:bg-slate-700 p-1 rounded transition md:hidden cursor-pointer">
-              <PanelLeftClose size={20} />
-            </button>
+    <div className="flex h-screen overflow-hidden bg-slate-50 text-slate-950">
+      <aside className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-slate-950 text-white shadow-xl transition-transform duration-300 md:static md:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        <div className="flex h-full flex-col gap-8 p-6">
+          <div className="flex items-center justify-between">
+            <div><p className="text-lg font-semibold tracking-tight">Task Manager</p><p className="mt-1 text-xs text-slate-400">A calmer way to work</p></div>
+            <Button variant="ghost" size="icon" className="text-slate-300 hover:bg-slate-800 hover:text-white md:hidden" onClick={() => setSidebarOpen(false)} aria-label="Close menu"><PanelLeftClose /></Button>
           </div>
-
-          <button
-            onClick={() => setShowPopup(true)}
-            className="w-full flex items-center justify-center gap-2 text-white bg-slate-800 hover:bg-slate-700 py-2 px-4 rounded-lg font-medium transition transform  cursor-pointer"
-          >
-            <CirclePlus size={20} /> Add Task
-          </button>
-
-          <nav className="space-y-2 flex-1 overflow-y-auto">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide px-2 py-2">Filters</p>
-            <button className="block w-full text-left px-4 py-2 rounded-lg hover:bg-slate-700 transition font-medium cursor-pointer">
-              All Tasks <span className="text-xs bg-slate-700 px-2 py-1 rounded ml-2">{tasks.length}</span>
-            </button>
-            <button className="block w-full text-left px-4 py-2 rounded-lg hover:bg-slate-700 transition cursor-pointer">
-              Pending <span className="text-xs bg-slate-700 px-2 py-1 rounded ml-2">{pendingCount}</span>
-            </button>
-            <button className="block w-full text-left px-4 py-2 rounded-lg hover:bg-slate-700 transition cursor-pointer">
-              Completed <span className="text-xs bg-slate-700 px-2 py-1 rounded ml-2">{completedCount}</span>
-            </button>
+          <Button className="w-full bg-emerald-500 text-slate-950 hover:bg-emerald-400" onClick={openCreateDialog}><CirclePlus /> Add task</Button>
+          <nav className="space-y-1" aria-label="Task filters">
+            <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">View</p>
+            {[["all", "All tasks", tasks.length], ["pending", "Pending", pendingCount], ["completed", "Completed", completedCount]].map(([value, label, count]) => (
+              <button key={value} type="button" onClick={() => setFilter(value)} className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm transition ${filter === value ? "bg-slate-800 text-white" : "text-slate-400 hover:bg-slate-900 hover:text-white"}`}><span>{label}</span><span className="rounded-full bg-slate-700 px-2 py-0.5 text-xs text-slate-200">{count}</span></button>
+            ))}
           </nav>
-
-          <button 
-            onClick={handleLogout}
-            className="mt-auto w-full flex items-center justify-center gap-2 text-gray-600 bg-[#f0f0f4] hover:bg-gray-700 hover:text-white py-2 px-4 rounded-lg font-medium transition cursor-pointer">
-            Logout
-          </button>
+          <Button variant="outline" className="mt-auto w-full border-slate-700 bg-transparent text-slate-300 hover:bg-slate-800 hover:text-white" onClick={handleLogout}><LogOut /> Sign out</Button>
         </div>
-      </div>
+      </aside>
 
-{/* Mobile Sidebar Toggle */}
-      {!sidebarOpen && (
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className="fixed top-4 left-4 z-40 bg-slate-900 text-white p-2 rounded-lg hover:bg-slate-800 transition md:hidden cursor-pointer"
-        >
-          <PanelRightClose size={20} />
-        </button>
-      )}
+      {!sidebarOpen && <Button variant="default" size="icon" className="fixed left-4 top-4 z-40 bg-slate-950 hover:bg-slate-800 md:hidden" onClick={() => setSidebarOpen(true)} aria-label="Open menu"><PanelRightClose /></Button>}
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto p-4 sm:p-6 md:p-8">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <header className="mb-6 pt-12 md:pt-0">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">My Tasks</h2>
-            <p className="text-gray-600 text-sm sm:text-base">
-              {tasks.length} total tasks • {completedCount} completed
-            </p>
-            <button
-              onClick={() => setShowPopup(true)}
-              className="mt-4 flex items-center gap-2 text-white bg-slate-800 hover:bg-slate-700 py-2 px-4 sm:px-6 rounded-lg font-medium transition transform hover:scale-105 cursor-pointer"
-            >
-              <CirclePlus size={20} /> New Task
-            </button>
-          </header>
-
-{/* Tasks Grid */}
-          <section className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden">
-            {loading ? (
-              <div className="col-span-full flex flex-col items-center justify-center py-16">
-                <Spinner />
-                <span className="text-gray-600 mt-4">Loading tasks...</span>
-              </div>
-            ) : (
-                tasks.length === 0 ? (
-                  <div className="col-span-full text-center py-16">
-                    <NotebookTabs size={48} className="mx-auto text-gray-300 mb-4" />
-                    <p className="text-gray-500 text-lg font-medium">No tasks yet. Create one to get started</p>
-                  </div>
-                ) : (
-                  tasks.map((task) => (
-                    <div
-                      key={task.id}
-                      onClick={() => setShowTaskPopup(true) || setSelectedTask(task)}
-                      className={`flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-5 bg-white rounded-lg border border-gray-300 border-2 transition-all duration-200 cursor-pointer hover:bg-gray-100`}
-                    >
-                      <div className="flex items-center gap-3 w-full sm:w-auto ">
-                        <GripVertical size={20} className="text-gray-400 flex-shrink-0" />
-                        <input
-                          type="checkbox"
-                          checked={task.status === "completed"} // or task.completed if you sync status -> completed boolean
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            handleMarkComplete(task.id);
-                          }}
-                          className="w-5 h-5 cursor-pointer bg-slate-800"
-                        />
-                      </div>
-
-                      <div className="flex-1 min-w-0 overflow-hidden px-3">
-                        <p
-                          className={`font-medium truncate ${
-                            task.completed ? "line-through text-gray-500" : "text-gray-900"
-                          }`}
-                        >
-                          {task.title}
-                        </p>
-                        <p className="text-sm text-gray-600 truncate">
-                          {task.description || "No description"}
-                        </p>
-                      </div>
-
-                      <div className="flex gap-2 sm:self-center mt-2 sm:mt-0">
-                        <button
-                          onClick={(e) => { 
-                            e.stopPropagation();
-                            setSelectedTask(task);
-                            setShowTaskPopup(true);
-                          }}
-                          className="text-gray-800  p-2 hover:border-1 rounded transition cursor-pointer"
-                        >
-                          <PencilLine size={18} />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleTaskDelete(task.id);
-                          }}
-                          className="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded transition cursor-pointer"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )
-            )}
-          </section>
+      <main className="flex-1 overflow-auto">
+        <div className="mx-auto max-w-6xl p-5 pt-20 sm:p-8 md:pt-10">
+          <header className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><div><p className="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-emerald-700">Your workspace</p><h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">My tasks</h1><p className="mt-2 text-sm text-slate-500">{tasks.length} total tasks · {completedCount} completed</p></div><Button className="w-fit bg-slate-950 hover:bg-slate-800" onClick={openCreateDialog}><CirclePlus /> New task</Button></header>
+          {isLoading ? <div className="flex flex-col items-center justify-center rounded-xl border border-dashed bg-white py-20 text-slate-500"><Spinner /><span className="mt-3 text-sm">Loading tasks…</span></div> : filteredTasks.length === 0 ? <Card className="border-dashed bg-white shadow-none"><CardContent className="flex flex-col items-center justify-center py-20 text-center"><NotebookTabs className="mb-4 size-12 text-slate-300" /><CardTitle className="text-lg">{filter === "all" ? "No tasks yet" : `No ${filter} tasks`}</CardTitle><CardDescription className="mt-2">{filter === "all" ? "Create your first task to get started." : "Try another view or add a new task."}</CardDescription><Button className="mt-6 bg-slate-950 hover:bg-slate-800" onClick={openCreateDialog}><CirclePlus /> Create task</Button></CardContent></Card> : <section className="grid grid-cols-1 gap-4 lg:grid-cols-2" aria-label={`${filter} tasks`}>
+            {filteredTasks.map((task) => { const complete = isCompleted(task); return <Card key={task.id} className="cursor-pointer bg-white transition hover:-translate-y-0.5 hover:border-slate-400 hover:shadow-md" onClick={() => setSelectedTask(task)}><CardContent className="flex items-start gap-4 p-5"><GripVertical className="mt-1 size-5 shrink-0 text-slate-300" /><Checkbox checked={complete} onCheckedChange={() => handleMarkComplete(task)} disabled={complete} onClick={(event) => event.stopPropagation()} aria-label={`Mark ${task.title} complete`} className="mt-1" /><div className="min-w-0 flex-1"><div className="flex flex-wrap items-start justify-between gap-2"><p className={`truncate font-semibold ${complete ? "text-slate-400 line-through" : "text-slate-900"}`}>{task.title}</p><Badge variant="outline" className={complete ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-700"}>{complete ? "Completed" : "Pending"}</Badge></div><p className="mt-2 line-clamp-2 text-sm text-slate-500">{task.description || "No description"}</p><p className="mt-4 flex items-center gap-1.5 text-xs text-slate-400"><CalendarDays className="size-3.5" /> {formatDate(taskDate(task))}</p></div><div className="flex shrink-0 gap-1"><Button variant="ghost" size="icon" className="text-slate-500 hover:bg-slate-100 hover:text-slate-900" onClick={(event) => { event.stopPropagation(); setSelectedTask(task); }} aria-label={`Edit ${task.title}`}><PencilLine /></Button><Button variant="ghost" size="icon" className="text-slate-400 hover:bg-red-50 hover:text-red-600" onClick={(event) => { event.stopPropagation(); setDeleteCandidate(task); }} disabled={deletingId === task.id} aria-label={`Delete ${task.title}`}>{deletingId === task.id ? <Spinner /> : <Trash2 />}</Button></div></CardContent></Card>; })}
+          </section>}
         </div>
       </main>
 
-      {/* Create Task Modal */}
-      {showPopup && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-[.1px] flex items-center justify-center p-2 sm:p-4 z-99">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-auto">
-            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
-              <h2 className="text-lg sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <BadgePlus /> Create Task
-              </h2>
-              <button onClick={() => setShowPopup(false)} className="text-gray-500 hover:text-gray-700 transition cursor-pointer">
-                <X size={22} />
-              </button>
-            </div>
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}><DialogContent><DialogHeader><DialogTitle>Create a task</DialogTitle><DialogDescription>Capture the next thing you want to move forward.</DialogDescription></DialogHeader><form onSubmit={handleCreateTask} className="space-y-5"><div className="space-y-2"><Label htmlFor="task-title">Title</Label><Input id="task-title" value={newTask.title} onChange={(event) => setNewTask({ ...newTask, title: event.target.value })} placeholder="e.g. Prepare weekly report" autoFocus /></div><div className="space-y-2"><Label htmlFor="task-description">Description <span className="font-normal text-slate-400">(optional)</span></Label><Textarea id="task-description" value={newTask.description} onChange={(event) => setNewTask({ ...newTask, description: event.target.value })} placeholder="Add a little context…" rows={4} /></div><DialogFooter><Button type="button" variant="outline" onClick={() => setShowCreateDialog(false)}>Cancel</Button><Button type="submit" className="bg-slate-950 hover:bg-slate-800" disabled={isSaving}>{isSaving ? <><Spinner /> Saving…</> : "Create task"}</Button></DialogFooter></form></DialogContent></Dialog>
 
-            <form onSubmit={handleCreateTask} className="p-4 sm:p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
-                <input
-                  type="text"
-                  placeholder="Enter task title"
-                  value={newTask.title}
-                  onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#f0f0f4] focus:ring-2 focus:ring-[#f0f0f4]"
-                  autoFocus
-                />
-              </div>
+      <Dialog open={Boolean(selectedTask)} onOpenChange={(open) => { if (!open) setSelectedTask(null); }}><DialogContent className="max-w-2xl">{selectedTask && <><DialogHeader><DialogTitle>Edit task</DialogTitle><DialogDescription>Update the details or mark this task as complete.</DialogDescription></DialogHeader><form onSubmit={handleUpdateTask} className="space-y-5"><div className="grid gap-5 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="edit-task-title">Title</Label><Input id="edit-task-title" value={selectedTask.title} onChange={(event) => setSelectedTask({ ...selectedTask, title: event.target.value })} /></div><div className="space-y-2"><Label>Status</Label><div className="flex h-9 items-center"><Badge variant="outline" className={isCompleted(selectedTask) ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-700"}>{isCompleted(selectedTask) ? "Completed" : "Pending"}</Badge></div></div></div><div className="space-y-2"><Label htmlFor="edit-task-description">Description</Label><Textarea id="edit-task-description" value={selectedTask.description || ""} onChange={(event) => setSelectedTask({ ...selectedTask, description: event.target.value })} rows={5} /></div><div className="flex items-center gap-3 rounded-lg border bg-slate-50 p-3"><Checkbox id="edit-task-complete" checked={isCompleted(selectedTask)} onCheckedChange={() => handleMarkComplete(selectedTask)} disabled={isCompleted(selectedTask)} /><Label htmlFor="edit-task-complete" className="cursor-pointer">Mark as completed</Label></div><p className="flex items-center gap-1.5 text-xs text-slate-400"><CalendarDays className="size-3.5" /> Added {formatWeekday(taskDate(selectedTask))}, {formatDate(taskDate(selectedTask))}</p><DialogFooter><Button type="button" variant="outline" onClick={() => setSelectedTask(null)}>Cancel</Button><Button type="submit" className="bg-slate-950 hover:bg-slate-800" disabled={isSaving}>{isSaving ? <><Spinner /> Saving…</> : "Save changes"}</Button></DialogFooter></form></>}</DialogContent></Dialog>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                <textarea
-                  placeholder="Enter task description"
-                  value={newTask.description}
-                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                  rows="4"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#f0f0f4] focus:ring-2 focus:ring-[#f0f0f4] resize-none"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowPopup(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-[#f0f0f4] rounded-lg font-medium transition cursor-pointer"
-                >
-                  {loading ? (
-                        <div className="flex items-center justify-center gap-2">
-                          <Spinner className="text-white" />
-                          <span>Saving...</span>
-                        </div>
-                      ) : (
-                        "Save"
-                      )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-
-      {/* Task Details Modal */}
-      {showTaskPopup && selectedTask && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-[.01px] flex items-center justify-center p-2 sm:p-4 z-99">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg">
-                  <PencilLine size={24} className="text-slate-800" />
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900">Task Details</h2>
-              </div>
-              <button onClick={() => setShowTaskPopup(false)} className="text-gray-500 hover:text-gray-700 transition cursor-pointer">
-                <X size={24} />
-              </button>
-            </div>
-
-            <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Activity Section */}
-              <div className="bg-[#f0f0f4] p-5 rounded-lg border border-gray-200">
-                <h3 className="font-semibold text-gray-900 mb-4">Activity</h3>
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <p className="text-xs text-gray-600 uppercase tracking-wide">Added on</p>
-                    <p className="font-medium text-gray-900">{formatDate(selectedTask.created_at)} {formatTime(selectedTask.created_at)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-600 uppercase tracking-wide">Date</p>
-                    <p className="font-medium text-gray-900">{formatWeekday(selectedTask.created_at)}</p>
-                  </div>
-                  <div className="pt-3 border-t border-gray-300">
-                    <p className="text-xs text-gray-600 uppercase tracking-wide">Status</p>
-                    <p className={`font-semibold text-lg ${selectedTask.completed ? "text-green-600" : "text-slate-800"}`}>
-                      {selectedTask.completed ? "✓ Completed" : "⟳ Pending"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Edit Section */}
-              <div className="md:col-span-2 space-y-6">
-                <div className="bg-[#f0f0f4] p-4 rounded-lg border border-gray-200">
-                  <p className="text-lg text-gray-800 font-bold mb-1">Current Title</p>
-                  <h4 className="text-sm text-gray-700">{selectedTask.title}</h4>
-                  <p className="text-lg text-gray-800 font-bold mt-3 mb-1">Current Description</p>
-                  <h4 className=" text-sm text-gray-700">{selectedTask.description || "No description"}</h4>
-                </div>
-
-                <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      handleUpdateTask(selectedTask.id);
-                    }}
-                    className="space-y-4"
-                  >
-                  <div>
-                    <label className="block text-sm font-bold text-gray-800 mb-2">Edit Title</label>
-                    <input 
-                      type="text" 
-                      value={selectedTask.title}
-                      onChange={(e) => setSelectedTask({ ...selectedTask, title: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-gray-800 mb-2">Edit Description</label>
-                    <textarea 
-                      value={selectedTask.description}
-                      onChange={(e) => setSelectedTask({ ...selectedTask, description: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition resize-none"
-                      rows="4"
-                    />
-                  </div>
-
-                  <div className="space-y-3">
-                    <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition">
-                      <input 
-                        type="checkbox" 
-                        checked={selectedTask.completed}
-                        onChange={handleMarkComplete}
-                        className="w-5 h-5 cursor-pointer bg-slate-800"
-                      />
-                      <span className="font-medium text-gray-700">Mark as completed</span>
-                    </label>
-                  </div>
-
-                  <div className="flex gap-3 pt-4">
-                    <button type="button" onClick={() => setShowTaskPopup(false)} className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition cursor-pointer">
-                      Cancel
-                    </button>
-                    <button 
-                      type="submit" 
-                      className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-800 text-white rounded-lg font-medium transition transform cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {loading ? (
-                        <div className="flex items-center justify-center gap-2">
-                          <Spinner className="text-white" />
-                          <span>Saving...</span>
-                        </div>
-                      ) : (
-                        "Save changes"
-                      )}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <AlertDialog open={Boolean(deleteCandidate)} onOpenChange={(open) => { if (!open) setDeleteCandidate(null); }}><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete this task?</AlertDialogTitle><AlertDialogDescription>“{deleteCandidate?.title}” will be permanently removed. This action cannot be undone.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction className="bg-red-600 text-white hover:bg-red-700" onClick={() => handleTaskDelete(deleteCandidate.id)}>Delete task</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
     </div>
   );
 };
