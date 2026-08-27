@@ -1,6 +1,5 @@
 import { CalendarDays, Check, Circle, ListChecks } from "lucide-react";
 import { Link } from "react-router-dom";
-import "../../auth.css";
 
 const AuthLayout = ({ eyebrow, title, description, children, footer }) => {
   return (

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "./TaskPopup.css";
 
 const TaskPopup = () => {
   const [showPopup, setShowPopup] = useState(false);
