@@ -6,7 +6,8 @@ import Signin from "./components/login/login";
 import Register from "./components/register/register";
 import Password_reset from "./components/password_reset/password_reset";
 import "./App.css";
-import { AuthProvider, AuthContext } from "./authcontext.jsx";
+import { AuthProvider } from "./authcontext.jsx";
+import { AuthContext } from "./AuthContext.js";
 import { Toaster } from "./components/ui/sonner.jsx";
 
 // Protected route wrapper
