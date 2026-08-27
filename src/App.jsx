@@ -5,7 +5,6 @@ import Dashboard from "./app/dashboard/dashboard";
 import Signin from "./components/login/login";
 import Register from "./components/register/register";
 import Password_reset from "./components/password_reset/password_reset";
-import "./App.css";
 import { AuthProvider } from "./authcontext.jsx";
 import { AuthContext } from "./AuthContext.js";
 import { Toaster } from "./components/ui/sonner.jsx";
