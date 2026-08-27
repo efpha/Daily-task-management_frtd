@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import api from "../../axiosConfig.js";
-import { AuthContext } from "../../authcontext.jsx";
+import { AuthContext } from "../../AuthContext.js";
 import AuthField from "../auth/AuthField.jsx";
 import AuthLayout from "../auth/AuthLayout.jsx";
 import { Spinner } from "../ui/spinner";
