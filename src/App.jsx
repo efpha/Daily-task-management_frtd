@@ -8,10 +8,23 @@ import Password_reset from "./components/password_reset/password_reset";
 import { AuthProvider } from "./authcontext.jsx";
 import { AuthContext } from "./AuthContext.js";
 import { Toaster } from "./components/ui/sonner.jsx";
+import { Spinner } from "./components/ui/spinner.jsx";
 
-// Protected route wrapper
+// Protected route wrapper that waits for auth initialization before redirecting
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, isLoading } = useContext(AuthContext);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-2">
+          <Spinner />
+          <span className="text-xs text-slate-500 font-medium">Verifying session…</span>
+        </div>
+      </div>
+    );
+  }
+
   return isAuthenticated ? children : <Navigate to="/home/login" replace />;
 };
 
