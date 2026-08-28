@@ -389,147 +389,120 @@ const Dashboard = () => {
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex h-full flex-col justify-between p-5">
-          <div className="space-y-6">
-            {/* Brand Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="flex size-9 items-center justify-center rounded-xl bg-[#bce8cb] text-[#17382c]">
-                  <ListChecks size={20} strokeWidth={2.5} />
-                </span>
-                <div>
-                  <p className="font-bold tracking-tight text-white" style={{ fontFamily: "Space Grotesk, sans-serif" }}>
-                    Task Manager
-                  </p>
-                  <p className="text-xs text-[#8fd5ac]">A calmer way to work</p>
-                </div>
+        {/* Section 1: Fixed Top Sidebar */}
+        <div className="flex-shrink-0 border-b border-[#235241] p-5 space-y-4 bg-[#143228]">
+          {/* Brand Header */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="flex size-9 items-center justify-center rounded-xl bg-[#bce8cb] text-[#17382c]">
+                <ListChecks size={20} strokeWidth={2.5} />
+              </span>
+              <div>
+                <p className="font-bold tracking-tight text-white" style={{ fontFamily: "Space Grotesk, sans-serif" }}>
+                  Task Manager
+                </p>
+                <p className="text-xs text-[#8fd5ac]">A calmer way to work</p>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-slate-300 hover:bg-[#1f4a3b] hover:text-white md:hidden"
-                onClick={() => setSidebarOpen(false)}
-                aria-label="Close menu"
-              >
-                <PanelLeftClose />
-              </Button>
             </div>
-
-            {/* Primary Action Button */}
             <Button
-              className="w-full bg-[#bce8cb] text-[#17382c] hover:bg-[#d2f2dc] font-bold shadow-md transition"
-              onClick={openCreateDialog}
+              variant="ghost"
+              size="icon"
+              className="text-slate-300 hover:bg-[#1f4a3b] hover:text-white md:hidden"
+              onClick={() => setSidebarOpen(false)}
+              aria-label="Close menu"
             >
-              <CirclePlus size={18} /> Add task
+              <PanelLeftClose />
             </Button>
-
-            {/* Main Views Navigation */}
-            <nav className="space-y-1" aria-label="Task views">
-              <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#8da99a]">
-                Views
-              </p>
-
-              {[
-                { value: "today", label: "Today's Focus", count: todayCount, icon: CalendarDays },
-                { value: "overdue", label: "Overdue", count: overdueCount, icon: AlertCircle },
-                { value: "all", label: "All Tasks", count: totalCount, icon: List },
-                { value: "pending", label: "Pending", count: pendingCount, icon: Clock },
-                { value: "in_progress", label: "In Progress", count: inProgressCount, icon: RefreshCw },
-                { value: "completed", label: "Completed", count: completedCount, icon: CheckCircle2 },
-                { value: "high_priority", label: "High Priority", count: highPriorityCount, icon: Flame },
-              ].map((item) => {
-                const NavIcon = item.icon;
-                return (
-                  <button
-                    key={item.value}
-                    type="button"
-                    onClick={() => {
-                      setFilter(item.value);
-                      setSidebarOpen(false);
-                    }}
-                    className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-medium transition ${
-                      filter === item.value
-                        ? "bg-[#235241] text-white shadow-sm"
-                        : "text-[#c3d8cb] hover:bg-[#1a4234] hover:text-white"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <NavIcon size={16} className={filter === item.value ? "text-[#8fd5ac]" : "text-[#8da99a]"} />
-                      <span>{item.label}</span>
-                    </div>
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-                        item.value === "overdue" && item.count > 0
-                          ? "bg-rose-500/20 text-rose-300"
-                          : item.value === "today" && item.count > 0
-                          ? "bg-amber-500/20 text-amber-300"
-                          : "bg-[#17251f] text-[#8fd5ac]"
-                      }`}
-                    >
-                      {item.count}
-                    </span>
-                  </button>
-                );
-              })}
-            </nav>
-
-            {/* Category Filter Pills in Sidebar */}
-            <div className="space-y-1 pt-2">
-              <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#8da99a]">
-                Categories
-              </p>
-              {categories.map((cat) => {
-                const count = tasks.filter((t) => t.category === cat && !isCompleted(t)).length;
-                return (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => {
-                      setCategoryFilter(categoryFilter === cat ? "all" : cat);
-                      setSidebarOpen(false);
-                    }}
-                    className={`flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-left text-xs font-medium transition ${
-                      categoryFilter === cat
-                        ? "bg-[#235241] text-white"
-                        : "text-[#a2c2b0] hover:bg-[#1a4234] hover:text-white"
-                    }`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <Tag size={13} className="text-[#8fd5ac]" /> {cat}
-                    </span>
-                    <span className="text-[11px] text-[#7a9d8a]">{count}</span>
-                  </button>
-                );
-              })}
-            </div>
           </div>
 
+          {/* Primary Action Button */}
+          <Button
+            className="w-full bg-[#bce8cb] text-[#17382c] hover:bg-[#d2f2dc] font-bold shadow-md transition"
+            onClick={openCreateDialog}
+          >
+            <CirclePlus size={18} /> Add task
+          </Button>
+        </div>
+
+        {/* Section 2: Scrollable Middle Tabs (Views & Categories) */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-6">
+          {/* Main Views Navigation */}
+          <nav className="space-y-1" aria-label="Task views">
+            <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#8da99a]">
+              Views
+            </p>
+
+            {[
+              { value: "today", label: "Today's Focus", count: todayCount, icon: CalendarDays },
+              { value: "overdue", label: "Overdue", count: overdueCount, icon: AlertCircle },
+              { value: "all", label: "All Tasks", count: totalCount, icon: List },
+              { value: "pending", label: "Pending", count: pendingCount, icon: Clock },
+              { value: "in_progress", label: "In Progress", count: inProgressCount, icon: RefreshCw },
+              { value: "completed", label: "Completed", count: completedCount, icon: CheckCircle2 },
+              { value: "high_priority", label: "High Priority", count: highPriorityCount, icon: Flame },
+            ].map((item) => {
+              const NavIcon = item.icon;
+              return (
+                <button
+                  key={item.value}
+                  type="button"
+                  onClick={() => {
+                    setFilter(item.value);
+                    setSidebarOpen(false);
+                  }}
+                  className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-medium transition ${
+                    filter === item.value
+                      ? "bg-[#235241] text-white shadow-sm"
+                      : "text-[#c3d8cb] hover:bg-[#1a4234] hover:text-white"
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <NavIcon size={16} className={filter === item.value ? "text-[#8fd5ac]" : "text-[#8da99a]"} />
+                    <span>{item.label}</span>
+                  </div>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+                      item.value === "overdue" && item.count > 0
+                        ? "bg-rose-500/20 text-rose-300"
+                        : item.value === "today" && item.count > 0
+                        ? "bg-amber-500/20 text-amber-300"
+                        : "bg-[#17251f] text-[#8fd5ac]"
+                    }`}
+                  >
+                    {item.count}
+                  </span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Section 3: Fixed Bottom Sidebar */}
+        <div className="flex-shrink-0 border-t border-[#235241] p-5 space-y-4 bg-[#143228]">
           {/* Daily Momentum Progress Card */}
-          <div className="space-y-4 pt-4 border-t border-[#235241]">
-            <div className="rounded-xl bg-[#112d23] p-3.5 border border-[#235241]">
-              <div className="flex items-center justify-between text-xs font-semibold text-[#c3d8cb]">
-                <span>Daily Momentum</span>
-                <span className="text-[#8fd5ac]">{completionPercentage}%</span>
-              </div>
-              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[#17382c]">
-                <div
-                  className="h-full rounded-full bg-[#8fd5ac] transition-all duration-300"
-                  style={{ width: `${completionPercentage}%` }}
-                />
-              </div>
-              <p className="mt-2 text-[11px] text-[#8da99a]">
-                {completedCount} of {totalCount} tasks completed
-              </p>
+          <div className="rounded-xl bg-[#112d23] p-3.5 border border-[#235241]">
+            <div className="flex items-center justify-between text-xs font-semibold text-[#c3d8cb]">
+              <span>Daily Momentum</span>
+              <span className="text-[#8fd5ac]">{completionPercentage}%</span>
             </div>
-
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-2 border-[#235241] bg-transparent text-[#c3d8cb] hover:bg-[#1a4234] hover:text-white"
-              onClick={handleLogout}
-            >
-              <LogOut size={16} /> Sign out
-            </Button>
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[#17382c]">
+              <div
+                className="h-full rounded-full bg-[#8fd5ac] transition-all duration-300"
+                style={{ width: `${completionPercentage}%` }}
+              />
+            </div>
+            <p className="mt-2 text-[11px] text-[#8da99a]">
+              {completedCount} of {totalCount} tasks completed
+            </p>
           </div>
+
+          <Button
+            variant="outline"
+            className="w-full justify-start gap-2 border-[#235241] bg-transparent text-[#c3d8cb] hover:bg-[#1a4234] hover:text-white"
+            onClick={handleLogout}
+          >
+            <LogOut size={16} /> Sign out
+          </Button>
         </div>
       </aside>
 
