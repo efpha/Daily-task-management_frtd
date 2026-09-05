@@ -48,7 +48,7 @@ const Register = () => {
   const passwordRules = [[formData.password.length >= 8, "At least 8 characters"], [/[A-Z]/.test(formData.password), "One uppercase letter"], [/[0-9]/.test(formData.password), "One number"]];
 
   return (
-    <AuthLayout eyebrow="Get started" title="Create your account" description="Set up your workspace and turn small steps into steady progress." footer={<>Already have an account? <Link to="/home/login">Sign in</Link></>}>
+    <AuthLayout eyebrow="Get started" title="Create your account" description="" footer={<>Already have an account? <Link to="/home/login">Sign in</Link></>}>
       <form className="auth-form" onSubmit={handleSubmit}>
         {error && <p className="auth-alert error" role="alert"><AlertCircle size={17} />{error}</p>}
         <AuthField id="name" label="Your name" value={formData.name} onChange={handleChange} placeholder="e.g. John Kamau" autoComplete="name" />
