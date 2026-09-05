@@ -107,11 +107,6 @@ const Home = () => {
         <main className="home-hero-container">
           {/* Left Hero Copy */}
           <div className="home-hero-content">
-            <div className="home-hero-badge">
-              <Sparkles size={14} />
-              <span>A calmer way to work</span>
-            </div>
-
             <h1 className="home-hero-title">
               Make space for the <span>work that matters.</span>
             </h1>
